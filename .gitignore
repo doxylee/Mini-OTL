@@ -38,4 +38,5 @@ lerna-debug.log*
 /volumes
 
 # ENV files
-/env
+*.env*
+!env/.env.template
