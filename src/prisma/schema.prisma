@@ -9,3 +9,122 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id             Int         @id @default(autoincrement())
+  email          String      @unique
+  password       String
+  firstName      String
+  lastName       String
+  department     Department  @relation(fields: [departmentId], references: [id])
+  departmentId   Int
+  isAdmin        Boolean     @default(false)
+  reviews        Review[]
+  writtenReports Report[]
+  timetables     Timetable[]
+  likedReviews   Review[]    @relation("LikedReviews")
+}
+
+model Department {
+  id       Int         @id @default(autoincrement())
+  nameKo   String
+  nameEn   String
+  deptCode String
+  users    User[]
+  profs    Professor[]
+  courses  Course[]
+}
+
+model Professor {
+  id         Int          @id @default(autoincrement())
+  name       String
+  department Department[]
+  lectures   Lecture[]
+}
+
+model Course {
+  id            Int        @id @default(autoincrement())
+  nameKo        String
+  nameEn        String
+  courseNumCode Int
+  lectureTime   Int
+  labTime       Int
+  credit        Int
+  department    Department @relation(fields: [departmentId], references: [id])
+  departmentId  Int
+  sumGrade      Int        @default(0)
+  sumLoad       Int        @default(0)
+  sumSpeech     Int        @default(0)
+  reviewCount   Int        @default(0)
+  lectures      Lecture[]
+}
+
+model Lecture {
+  id          Int         @id @default(autoincrement())
+  course      Course      @relation(fields: [courseId], references: [id])
+  courseId    Int
+  semester    Semester    @relation(fields: [year, season], references: [year, season])
+  year        Int
+  season      Int
+  professor   Professor   @relation(fields: [professorId], references: [id])
+  professorId Int
+  sumGrade    Int         @default(0)
+  sumLoad     Int         @default(0)
+  sumSpeech   Int         @default(0)
+  reviewCount Int         @default(0)
+  classTimes  ClassTime[]
+  reviews     Review[]
+  Timetables  Timetable[]
+}
+
+model ClassTime {
+  id        Int      @id @default(autoincrement())
+  lecture   Lecture  @relation(fields: [lectureId], references: [id])
+  lectureId Int
+  day       Int
+  startTime DateTime @db.Time
+  endTime   DateTime @db.Time
+}
+
+model Semester {
+  year       Int
+  season     Int
+  lectures   Lecture[]
+  timetables Timetable[]
+
+  @@id([year, season])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  lecture    Lecture  @relation(fields: [lectureId], references: [id])
+  lectureId  Int
+  content    String
+  grade      Int
+  load       Int
+  speech     Int
+  isDeleted  Boolean  @default(false)
+  reports    Report[]
+  likedUsers User[]   @relation("LikedReviews")
+}
+
+model Report {
+  id       Int    @id @default(autoincrement())
+  review   Review @relation(fields: [reviewId], references: [id])
+  reviewId Int
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int
+  content  String
+}
+
+model Timetable {
+  id       Int       @id @default(autoincrement())
+  user     User      @relation(fields: [userId], references: [id])
+  userId   Int
+  semester Semester  @relation(fields: [year, season], references: [year, season])
+  year     Int
+  season   Int
+  lectures Lecture[]
+}
