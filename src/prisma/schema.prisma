@@ -29,7 +29,7 @@ model Department {
   id       Int         @id @default(autoincrement())
   nameKo   String
   nameEn   String
-  deptCode String
+  deptCode String      @unique
   users    User[]
   profs    Professor[]
   courses  Course[]
