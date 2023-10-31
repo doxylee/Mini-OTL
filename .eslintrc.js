@@ -23,7 +23,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'prettier/prettier': ['warn', { endOfLine: 'auto' }],
     '@typescript-eslint/no-unused-vars': [
-      'error',
+      'warn',
       { ignoreRestSiblings: true },
     ],
   },
