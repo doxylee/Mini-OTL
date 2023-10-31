@@ -29,6 +29,10 @@ export class UsersService {
     });
   }
 
+  async getById(id: number) {
+    return this.userRepository.getById(id);
+  }
+
   async getByEmail(email: string) {
     return this.userRepository.getByEmail(email);
   }
