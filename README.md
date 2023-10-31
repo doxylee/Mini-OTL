@@ -63,3 +63,8 @@ $ npm run test:cov
 $ npx prisma migrate dev --name {name}
 
 ```
+
+### Prisma client generation
+```bash
+$ npx prisma generate
+```
