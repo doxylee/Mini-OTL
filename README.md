@@ -61,7 +61,11 @@ $ npm run test:cov
 ### Migration
 ```bash
 $ npx prisma migrate dev --name {name}
+```
 
+### Seeding DB
+```bash
+$ npx prisma db seed
 ```
 
 ### Prisma client generation
