@@ -22,16 +22,6 @@ export class CreateUserDTO {
   departmentId: number;
 }
 
-export class LoginRequestDTO {
-  @IsString()
-  @IsNotEmpty()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-}
-
 export type UserDTO = {
   id: number;
   email: string;
