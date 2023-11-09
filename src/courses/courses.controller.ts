@@ -1,6 +1,6 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
 import { CoursesService } from './courses.service';
-import { CourseFindQueryDTO, courseWithDeptToCourseDTO } from 'src/common/dto/courses/courses.dto';
+import { CourseFindQueryDTO, courseWithDeptToCourseDTO, toCourseWithLecturesDTO } from 'src/common/dto/courses/courses.dto';
 
 @Controller('api/courses')
 export class CoursesController {
@@ -12,9 +12,9 @@ export class CoursesController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: number) {
-    const course = await this.coursesService.findById(id);
+  async courseDetail(@Param('id') id: number) {
+    const course = await this.coursesService.getCourseWithLectures(id);
     if (!course) throw new NotFoundException('Course not found');
-    return courseWithDeptToCourseDTO(course);
+    return toCourseWithLecturesDTO(course);
   }
 }

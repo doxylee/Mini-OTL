@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { CourseWithDept } from './repository.dto';
+import { CourseWithDept, CourseWithIncludes } from './repository.dto';
 
 export type CourseFindFilter = {
   departments?: number[];
@@ -12,12 +12,22 @@ export type CourseFindFilter = {
 export class CourseRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findById(id: number): Promise<CourseWithDept | null> {
-    return await this.prisma.course.findUnique({ where: { id }, include: { department: true } });
+  async getCourseWithLectures(id: number): Promise<CourseWithIncludes | null> {
+    return await this.prisma.course.findUnique({
+      where: { id },
+      include: {
+        department: true,
+        lectures: {
+          include: {
+            professor: true,
+            classTimes: true,
+          },
+        },
+      },
+    });
   }
 
   async findFiltered(filter: CourseFindFilter): Promise<CourseWithDept[]> {
-    console.log(filter);
     const courseNumCodeFilter = filter.codePrefixes?.map((prefix) => ({
       courseNumCode: { gte: prefix * 100, lt: (prefix + 1) * 100 },
     }));

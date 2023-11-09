@@ -5,8 +5,8 @@ import { CourseFindFilter, CourseRepository } from 'src/prisma/repositories/cour
 export class CoursesService {
   constructor(private readonly courseRepository: CourseRepository) {}
 
-  async findById(id: number) {
-    return await this.courseRepository.findById(id);
+  async getCourseWithLectures(id: number) {
+    return await this.courseRepository.getCourseWithLectures(id);
   }
 
   async findFiltered(filter: CourseFindFilter) {
