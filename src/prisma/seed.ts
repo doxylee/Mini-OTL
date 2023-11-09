@@ -120,7 +120,7 @@ const SEMESTERS = [
 
 const LECTURES = [
   {
-    courseIdx: 0,
+    courseId: 1,
     professorName: 'yumyum',
     seasons: [1, 3],
     year: 2023,
@@ -130,7 +130,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 1,
+    courseId: 2,
     professorName: 'tom',
     seasons: [1, 3],
     year: 2023,
@@ -140,7 +140,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 2,
+    courseId: 3,
     professorName: 'platypus',
     seasons: [1, 3],
     year: 2023,
@@ -150,7 +150,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 3,
+    courseId: 4,
     professorName: 'larry',
     seasons: [1, 3],
     year: 2023,
@@ -160,7 +160,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 4,
+    courseId: 5,
     professorName: 'duncan',
     seasons: [1, 3],
     year: 2023,
@@ -170,7 +170,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 5,
+    courseId: 6,
     professorName: 'larry',
     seasons: [1, 3],
     year: 2023,
@@ -180,7 +180,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 6,
+    courseId: 7,
     professorName: 'yumyum',
     seasons: [1, 3],
     year: 2023,
@@ -190,7 +190,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 7,
+    courseId: 8,
     professorName: 'april',
     seasons: [3],
     year: 2023,
@@ -200,7 +200,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 8,
+    courseId: 9,
     professorName: 'platypus',
     seasons: [3],
     year: 2023,
@@ -210,7 +210,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 9,
+    courseId: 10,
     professorName: 'april',
     seasons: [1],
     year: 2023,
@@ -220,7 +220,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 10,
+    courseId: 11,
     professorName: 'yumyum',
     seasons: [1],
     year: 2023,
@@ -230,7 +230,7 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 11,
+    courseId: 12,
     professorName: 'yumyum',
     seasons: [3],
     year: 2023,
@@ -240,14 +240,14 @@ const LECTURES = [
     ],
   },
   {
-    courseIdx: 12,
+    courseId: 13,
     professorName: 'duncan',
     seasons: [1],
     year: 2023,
     classTimes: [{ day: 5, start: 13, end: 16 }],
   },
   {
-    courseIdx: 13,
+    courseId: 14,
     professorName: 'duncan',
     seasons: [3],
     year: 2023,
@@ -267,22 +267,20 @@ async function main() {
   );
 
   const courses = await Promise.all(
-    COURSES.map((course) =>
+    COURSES.map((course, idx) =>
       prisma.course.upsert({
         // prisma only supports where with unique fields
         where: {
-          departmentId_courseNumCode: {
-            departmentId: departments.find((dept) => dept.deptCode === course.deptCode)!.id,
-            courseNumCode: course.courseNumCode,
-          },
+          id: idx + 1,
         },
         update: {},
         create: {
+          id: idx + 1,
           nameKo: course.nameKo,
           nameEn: course.nameEn,
           courseNumCode: course.courseNumCode,
           ...COURSE_ADDITIONAL_FIELDS,
-          department: { connect: { deptCode: course.deptCode } },
+          departmentId: departments.find((dept) => dept.deptCode === course.deptCode)!.id,
         },
       }),
     ),
@@ -301,9 +299,10 @@ async function main() {
   const professors = await Promise.all(
     PROFESSORS.map((professor, idx) =>
       prisma.professor.upsert({
-        where: { id: idx },
+        where: { id: idx + 1 },
         update: {},
         create: {
+          id: idx + 1,
           name: professor.name,
           departments: {
             connect: professor.departments.map((deptCode) => ({ deptCode })),
@@ -317,13 +316,21 @@ async function main() {
     LECTURES.flatMap(({ seasons, ...lecture }) => seasons.map((season) => ({ season, ...lecture }))).map(
       (lecture, idx) =>
         prisma.lecture.upsert({
-          where: { id: idx },
+          where: { id: idx + 1 },
           update: {},
           create: {
-            course: { connect: { id: courses[lecture.courseIdx].id } },
-            semester: { connect: { year_season: { year: lecture.year, season: lecture.season } } },
-            professor: {
-              connect: { id: professors.find((professor) => professor.name === lecture.professorName)!.id },
+            id: idx + 1,
+            courseId: lecture.courseId,
+            year: lecture.year,
+            season: lecture.season,
+            professorId: professors.find((professor) => professor.name === lecture.professorName)!.id,
+            classTimes: {
+              create: lecture.classTimes.map((classTime) => ({
+                day: classTime.day,
+                // Need to set year later than epoch or about 2 minute is added for some reason.
+                startTime: new Date(2000, 0, 1, classTime.start),
+                endTime: new Date(2000, 0, 1, classTime.end),
+              })),
             },
           },
         }),
