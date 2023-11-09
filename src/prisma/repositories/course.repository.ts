@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Course, Department, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CourseWithDept } from './repository.dto';
 
 export type CourseFindFilter = {
   departments?: number[];
   codePrefixes?: number[];
   keyword?: string;
 };
-
-export type CourseWithDept = Course & { department: Department };
 
 @Injectable()
 export class CourseRepository {

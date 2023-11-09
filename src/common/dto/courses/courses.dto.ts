@@ -1,7 +1,8 @@
 import { Transform } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Length } from 'class-validator';
 
-import { CourseWithDept } from 'src/prisma/repositories/course.repository';
+import { CourseWithDept, CourseWithIncludes } from 'src/prisma/repositories/repository.dto';
+import { LectureWithProfessorResponseDTO, toLectureWithProfessorResponseDTO } from '../lectures/lectures.dto';
 
 export type CourseResponseDTO = {
   id: number;
@@ -32,6 +33,15 @@ export function courseWithDeptToCourseDTO(course: CourseWithDept): CourseRespons
     grade: course.reviewCount ? course.sumGrade / course.reviewCount : 0,
     load: course.reviewCount ? course.sumLoad / course.reviewCount : 0,
     speech: course.reviewCount ? course.sumSpeech / course.reviewCount : 0,
+  };
+}
+
+export type CourseWithLecturesResponseDTO = CourseResponseDTO & { lectures: LectureWithProfessorResponseDTO[] };
+
+export function toCourseWithLecturesDTO(course: CourseWithIncludes): CourseWithLecturesResponseDTO {
+  return {
+    ...courseWithDeptToCourseDTO(course),
+    lectures: course.lectures.map(toLectureWithProfessorResponseDTO),
   };
 }
 
