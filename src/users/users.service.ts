@@ -17,11 +17,10 @@ export class UsersService {
   async createUser(data: CreateUserDTO) {
     if (await this.userRepository.getByEmail(data.email)) throw new ConflictException('Email already exists');
 
-    const { password, departmentId, ...rest } = data;
+    const { password, ...rest } = data;
 
     return this.userRepository.create({
       ...rest,
-      department: { connect: { id: data.departmentId } },
       encryptedPassword: await bcrypt.hash(
         password,
         this.configService.get('BCRYPT_SALT_ROUNDS') ?? DEFAULT_SALT_ROUNDS,
