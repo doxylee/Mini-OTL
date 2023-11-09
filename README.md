@@ -68,6 +68,11 @@ $ npx prisma migrate dev --name {name}
 $ npx prisma db seed
 ```
 
+### Reset DB
+```bash
+$ npx prisma migrate reset
+```
+
 ### Prisma client generation
 ```bash
 $ npx prisma generate
