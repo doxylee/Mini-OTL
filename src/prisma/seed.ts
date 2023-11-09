@@ -104,6 +104,157 @@ const COURSE_ADDITIONAL_FIELDS = {
   credit: 3,
 };
 
+const PROFESSORS = [
+  { name: 'larry', departments: ['EE', 'BTM'] },
+  { name: 'platypus', departments: ['CS', 'ID'] },
+  { name: 'tom', departments: ['TS', 'CS'] },
+  { name: 'yumyum', departments: ['CS', 'ID'] },
+  { name: 'duncan', departments: ['CS', 'EE'] },
+  { name: 'april', departments: ['IE', 'CS'] },
+];
+
+const SEMESTERS = [
+  { year: 2023, season: 1 },
+  { year: 2023, season: 3 },
+];
+
+const LECTURES = [
+  {
+    courseIdx: 0,
+    professorName: 'yumyum',
+    seasons: [1, 3],
+    year: 2023,
+    classTimes: [
+      { day: 1, start: 10.5, end: 12 },
+      { day: 3, start: 10.5, end: 12 },
+    ],
+  },
+  {
+    courseIdx: 1,
+    professorName: 'tom',
+    seasons: [1, 3],
+    year: 2023,
+    classTimes: [
+      { day: 2, start: 13, end: 14.5 },
+      { day: 4, start: 13, end: 14.5 },
+    ],
+  },
+  {
+    courseIdx: 2,
+    professorName: 'platypus',
+    seasons: [1, 3],
+    year: 2023,
+    classTimes: [
+      { day: 1, start: 10.5, end: 12 },
+      { day: 3, start: 10.5, end: 12 },
+    ],
+  },
+  {
+    courseIdx: 3,
+    professorName: 'larry',
+    seasons: [1, 3],
+    year: 2023,
+    classTimes: [
+      { day: 2, start: 13, end: 14.5 },
+      { day: 4, start: 13, end: 14.5 },
+    ],
+  },
+  {
+    courseIdx: 4,
+    professorName: 'duncan',
+    seasons: [1, 3],
+    year: 2023,
+    classTimes: [
+      { day: 2, start: 10.5, end: 12 },
+      { day: 4, start: 10.5, end: 12 },
+    ],
+  },
+  {
+    courseIdx: 5,
+    professorName: 'larry',
+    seasons: [1, 3],
+    year: 2023,
+    classTimes: [
+      { day: 2, start: 10.5, end: 12 },
+      { day: 4, start: 10.5, end: 12 },
+    ],
+  },
+  {
+    courseIdx: 6,
+    professorName: 'yumyum',
+    seasons: [1, 3],
+    year: 2023,
+    classTimes: [
+      { day: 1, start: 14.5, end: 16 },
+      { day: 3, start: 14.5, end: 16 },
+    ],
+  },
+  {
+    courseIdx: 7,
+    professorName: 'april',
+    seasons: [3],
+    year: 2023,
+    classTimes: [
+      { day: 1, start: 14.5, end: 16 },
+      { day: 3, start: 14.5, end: 16 },
+    ],
+  },
+  {
+    courseIdx: 8,
+    professorName: 'platypus',
+    seasons: [3],
+    year: 2023,
+    classTimes: [
+      { day: 2, start: 14.5, end: 16 },
+      { day: 4, start: 14.5, end: 16 },
+    ],
+  },
+  {
+    courseIdx: 9,
+    professorName: 'april',
+    seasons: [1],
+    year: 2023,
+    classTimes: [
+      { day: 2, start: 14.5, end: 16 },
+      { day: 4, start: 14.5, end: 16 },
+    ],
+  },
+  {
+    courseIdx: 10,
+    professorName: 'yumyum',
+    seasons: [1],
+    year: 2023,
+    classTimes: [
+      { day: 1, start: 13, end: 14.5 },
+      { day: 3, start: 13, end: 14.5 },
+    ],
+  },
+  {
+    courseIdx: 11,
+    professorName: 'yumyum',
+    seasons: [3],
+    year: 2023,
+    classTimes: [
+      { day: 1, start: 13, end: 14.5 },
+      { day: 3, start: 13, end: 14.5 },
+    ],
+  },
+  {
+    courseIdx: 12,
+    professorName: 'duncan',
+    seasons: [1],
+    year: 2023,
+    classTimes: [{ day: 5, start: 13, end: 16 }],
+  },
+  {
+    courseIdx: 13,
+    professorName: 'duncan',
+    seasons: [3],
+    year: 2023,
+    classTimes: [{ day: 5, start: 13, end: 16 }],
+  },
+];
+
 async function main() {
   const departments = await Promise.all(
     DEPARTMENTS.map((dept) =>
@@ -115,10 +266,10 @@ async function main() {
     ),
   );
 
-  await Promise.all(
+  const courses = await Promise.all(
     COURSES.map((course) =>
       prisma.course.upsert({
-        // prisma's typing doesn't support upsert with relation
+        // prisma only supports where with unique fields
         where: {
           departmentId_courseNumCode: {
             departmentId: departments.find((dept) => dept.deptCode === course.deptCode)!.id,
@@ -134,6 +285,48 @@ async function main() {
           department: { connect: { deptCode: course.deptCode } },
         },
       }),
+    ),
+  );
+
+  const semesters = await Promise.all(
+    SEMESTERS.map((semester) =>
+      prisma.semester.upsert({
+        where: { year_season: { year: semester.year, season: semester.season } },
+        update: {},
+        create: semester,
+      }),
+    ),
+  );
+
+  const professors = await Promise.all(
+    PROFESSORS.map((professor, idx) =>
+      prisma.professor.upsert({
+        where: { id: idx },
+        update: {},
+        create: {
+          name: professor.name,
+          departments: {
+            connect: professor.departments.map((deptCode) => ({ deptCode })),
+          },
+        },
+      }),
+    ),
+  );
+
+  const lectures = await Promise.all(
+    LECTURES.flatMap(({ seasons, ...lecture }) => seasons.map((season) => ({ season, ...lecture }))).map(
+      (lecture, idx) =>
+        prisma.lecture.upsert({
+          where: { id: idx },
+          update: {},
+          create: {
+            course: { connect: { id: courses[lecture.courseIdx].id } },
+            semester: { connect: { year_season: { year: lecture.year, season: lecture.season } } },
+            professor: {
+              connect: { id: professors.find((professor) => professor.name === lecture.professorName)!.id },
+            },
+          },
+        }),
     ),
   );
 }

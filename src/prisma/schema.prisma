@@ -38,7 +38,7 @@ model Department {
 model Professor {
   id         Int          @id @default(autoincrement())
   name       String
-  department Department[]
+  departments Department[]
   lectures   Lecture[]
 }
 
