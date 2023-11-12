@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Review } from '@prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, Review } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { ReviewCreateInput } from './repository.dto';
 
@@ -16,7 +16,20 @@ export class ReviewRepository {
   }
 
   async createReview(data: ReviewCreateInput): Promise<Review> {
-    return await this.prisma.review.create({ data });
+    // TODO: Generalize prisma error handling
+    try {
+      return await this.prisma.review.create({ data });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        // FK constraint error
+        if (e.code === 'P2003') {
+          // TODO: Reconsider throwing nestjs exceptions in repository layer
+          if (e.meta?.field_name === 'lectureId') throw new NotFoundException('Lecture not found');
+          if (e.meta?.field_name === 'userId') throw new NotFoundException('User not found');
+        }
+      }
+      throw e;
+    }
   }
 
   async getReviewsByLectureId(lectureId: number): Promise<Review[]> {
