@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsInt, Min, Max } from 'class-validator';
 
-export class CreateReviewBodyDTO {
+export class ReviewDataDTO {
   @IsString()
   @IsNotEmpty()
   content: string;
@@ -21,7 +21,20 @@ export class CreateReviewBodyDTO {
   speech: number;
 }
 
+export class ReviewCreateBodyDTO extends ReviewDataDTO {}
+export class ReviewUpdateBodyDTO extends ReviewDataDTO {}
+
 export type CreateReviewDTO = {
+  userId: number;
+  lectureId: number;
+  content: string;
+  grade: number;
+  load: number;
+  speech: number;
+};
+
+export type UpdateReviewDTO = {
+  id: number;
   userId: number;
   lectureId: number;
   content: string;

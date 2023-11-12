@@ -22,3 +22,10 @@ export type ReviewCreateInput = {
   load: number;
   speech: number;
 };
+
+export type ReviewUpdateInput = {
+  content: string;
+  grade: number;
+  load: number;
+  speech: number;
+};

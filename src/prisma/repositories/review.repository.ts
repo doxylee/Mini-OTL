@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, Review } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
-import { ReviewCreateInput } from './repository.dto';
+import { ReviewCreateInput, ReviewUpdateInput } from './repository.dto';
 
 @Injectable()
 export class ReviewRepository {
@@ -30,6 +30,23 @@ export class ReviewRepository {
       }
       throw e;
     }
+  }
+
+  async updateReview(id: number, data: ReviewUpdateInput): Promise<Review> {
+    return await this.prisma.review.update({
+      where: { id },
+      // TODO: How to sanitize input? Developers can enter more fields than they should
+      data: {
+        content: data.content,
+        grade: data.grade,
+        load: data.load,
+        speech: data.speech,
+      },
+    });
+  }
+
+  async getReviewById(id: number): Promise<Review | null> {
+    return await this.prisma.review.findUnique({ where: { id } });
   }
 
   async getReviewsByLectureId(lectureId: number): Promise<Review[]> {

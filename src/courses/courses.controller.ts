@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, NotFoundException, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, NotFoundException, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import {
   CourseFindQueryDTO,
@@ -6,7 +6,14 @@ import {
   toCourseWithLecturesDTO,
 } from 'src/common/dto/courses/courses.dto';
 import { ReviewsService } from 'src/reviews/reviews.service';
-import { CreateReviewBodyDTO, CreateReviewDTO, toReviewDTO } from 'src/common/dto/reviews/reviews.dto';
+import {
+  ReviewDataDTO,
+  CreateReviewDTO,
+  toReviewDTO,
+  ReviewCreateBodyDTO,
+  ReviewUpdateBodyDTO,
+  UpdateReviewDTO,
+} from 'src/common/dto/reviews/reviews.dto';
 import { JWTPayload } from 'src/common/dto/auth/auth.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
@@ -35,11 +42,23 @@ export class CoursesController {
   async createReview(
     @Req() req: Request & { user: JWTPayload },
     @Param('lectureId') lectureId: number,
-    @Body() review: CreateReviewBodyDTO,
+    @Body() review: ReviewCreateBodyDTO,
   ) {
     // TODO: Is it right to use DTO in this way?
     const dto: CreateReviewDTO = { ...review, lectureId, userId: req.user.id };
-
     return toReviewDTO(await this.reviewsService.createReview(dto));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  @Patch('lectures/:lectureId/reviews/:id')
+  async updateReview(
+    @Req() req: Request & { user: JWTPayload },
+    @Param('lectureId') lectureId: number,
+    @Param('id') id: number,
+    @Body() review: ReviewUpdateBodyDTO,
+  ) {
+    const dto: UpdateReviewDTO = { ...review, id, lectureId, userId: req.user.id };
+    return toReviewDTO(await this.reviewsService.updateReviewByUser(dto));
   }
 }
