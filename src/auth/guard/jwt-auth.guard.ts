@@ -19,7 +19,7 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'refresh']) implements CanAc
       context.getClass(),
     ]);
 
-    if (isPublic ? true : super.canActivate(context)) {
+    if (await super.canActivate(context) || isPublic) {
       // const req = context.switchToHttp().getRequest();
       // const res = context.switchToHttp().getResponse();
       // const userDTO = req.user;
