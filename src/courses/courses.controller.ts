@@ -61,4 +61,11 @@ export class CoursesController {
     const dto: UpdateReviewDTO = { ...review, id, lectureId, userId: req.user.id };
     return toReviewDTO(await this.reviewsService.updateReviewByUser(dto));
   }
+
+  @Get('lectures/reviews/:reviewId')
+  async reviewDetail(@Param('reviewId') reviewId: number) {
+    const review = await this.reviewsService.getReviewById(reviewId);
+    if (!review || review.isDeleted) throw new NotFoundException('Review not found');
+    return toReviewDTO(review);
+  }
 }

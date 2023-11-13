@@ -23,4 +23,8 @@ export class ReviewsService {
 
     return this.reviewRepository.updateReview(id, rest);
   }
+
+  async getReviewById(id: number) {
+    return this.reviewRepository.getReviewById(id);
+  }
 }
