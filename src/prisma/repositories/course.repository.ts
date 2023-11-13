@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { CourseWithDept, CourseWithIncludes } from './repository.dto';
+import { CourseStatUpdateInput, CourseWithDept, CourseWithIncludes } from './repository.dto';
 
 export type CourseFindFilter = {
   departments?: number[];
@@ -43,6 +43,18 @@ export class CourseRepository {
         ],
       },
       include: { department: true },
+    });
+  }
+
+  async updateCourseStats(data: CourseStatUpdateInput) {
+    return await this.prisma.course.update({
+      where: { id: data.courseId },
+      data: {
+        sumGrade: { increment: data.gradeChange },
+        sumLoad: { increment: data.loadChange },
+        sumSpeech: { increment: data.speechChange },
+        reviewCount: { increment: data.reviewCountChange },
+      },
     });
   }
 }

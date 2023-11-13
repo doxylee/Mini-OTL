@@ -37,3 +37,19 @@ export type ReportCreateInput = {
   reviewId: number;
   content: string;
 };
+
+export type CourseStatUpdateInput = {
+  courseId: number;
+  gradeChange: number;
+  loadChange: number;
+  speechChange: number;
+  reviewCountChange: number;
+};
+
+export type LectureStatUpdateInput = {
+  lectureId: number;
+  gradeChange: number;
+  loadChange: number;
+  speechChange: number;
+  reviewCountChange: number;
+};

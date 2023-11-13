@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CourseFindFilter, CourseRepository } from 'src/prisma/repositories/course.repository';
+import { CourseStatUpdateInput } from 'src/prisma/repositories/repository.dto';
 
 @Injectable()
 export class CoursesService {
@@ -11,5 +12,9 @@ export class CoursesService {
 
   async findFiltered(filter: CourseFindFilter) {
     return await this.courseRepository.findFiltered(filter);
+  }
+
+  async updateCourseStats(data: CourseStatUpdateInput) {
+    return await this.courseRepository.updateCourseStats(data);
   }
 }

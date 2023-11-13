@@ -5,10 +5,13 @@ import {
   Injectable,
   Inject,
   forwardRef,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateReviewDTO, UpdateReviewDTO } from 'src/common/dto/reviews/reviews.dto';
 import { ReviewRepository } from 'src/prisma/repositories/review.repository';
 import { ReportsService } from './report.service';
+import { CoursesService } from 'src/courses/courses.service';
+import { LecturesService } from 'src/lectures/lectures.service';
 
 @Injectable()
 export class ReviewsService {
@@ -16,14 +19,36 @@ export class ReviewsService {
     private readonly reviewRepository: ReviewRepository,
     @Inject(forwardRef(() => ReportsService))
     private readonly reportService: ReportsService,
+    @Inject(forwardRef(() => CoursesService))
+    private readonly coursesService: CoursesService,
+    private readonly lecturesService: LecturesService,
   ) {}
 
   async createReview(data: CreateReviewDTO) {
+    // TODO: Wrap in transaction
     if (await this.reviewRepository.checkUserReviewExistsForLecture(data.userId, data.lectureId))
       throw new ConflictException("User's review already exists for this lecture");
 
-    // TODO: Wrap in transaction
-    return this.reviewRepository.createReview(data);
+    const lecture = await this.lecturesService.getLectureById(data.lectureId);
+
+    const newReview = await this.reviewRepository.createReview(data);
+    try {
+      const changes = {
+        gradeChange: data.grade,
+        loadChange: data.load,
+        speechChange: data.speech,
+        reviewCountChange: 1,
+      };
+      await Promise.all([
+        this.coursesService.updateCourseStats({ ...changes, courseId: lecture.courseId }),
+        this.lecturesService.updateLectureStats({ ...changes, lectureId: data.lectureId }),
+      ]);
+    } catch (e) {
+      // TODO: Handle better
+      console.error(e);
+      throw new InternalServerErrorException(e);
+    }
+    return newReview;
   }
 
   async updateReviewByUser(data: UpdateReviewDTO) {
@@ -31,7 +56,28 @@ export class ReviewsService {
     const review = await this.getReviewWithId(id);
     if (review.userId !== userId) throw new ForbiddenException('Review can only be updated by its author');
 
-    return this.reviewRepository.updateReview(id, rest);
+    const lecture = await this.lecturesService.getLectureById(data.lectureId);
+
+    const newReview = await this.reviewRepository.updateReview(id, rest);
+    try {
+      const changes = {
+        gradeChange: data.grade - review.grade,
+        loadChange: data.load - review.load,
+        speechChange: data.speech - review.speech,
+        reviewCountChange: 0,
+      };
+      if (changes.gradeChange || changes.loadChange || changes.speechChange) {
+        await Promise.all([
+          this.coursesService.updateCourseStats({ ...changes, courseId: lecture.courseId }),
+          this.lecturesService.updateLectureStats({ ...changes, lectureId: review.lectureId }),
+        ]);
+      }
+    } catch (e) {
+      // TODO: Handle better
+      console.error(e);
+      throw new InternalServerErrorException(e);
+    }
+    return newReview;
   }
 
   async getReviewWithId(id: number) {
@@ -73,7 +119,28 @@ export class ReviewsService {
     if (review.isDeleted) throw new ConflictException('Review already deleted');
     if (!(await this.reportService.checkReportExistsForReview(id)))
       throw new ForbiddenException('Review can only be deleted after being reported');
+    const lecture = await this.lecturesService.getLectureById(review.lectureId);
 
-    return await this.reviewRepository.deleteReview(id);
+    const deletedReview = await this.reviewRepository.deleteReview(id);
+
+    try {
+      const changes = {
+        gradeChange: -review.grade,
+        loadChange: -review.load,
+        speechChange: -review.speech,
+        reviewCountChange: -1,
+      };
+      if (changes.gradeChange || changes.loadChange || changes.speechChange) {
+        await Promise.all([
+          this.coursesService.updateCourseStats({ ...changes, courseId: lecture.courseId }),
+          this.lecturesService.updateLectureStats({ ...changes, lectureId: review.lectureId }),
+        ]);
+      }
+    } catch (e) {
+      // TODO: Handle better
+      console.error(e);
+      throw new InternalServerErrorException(e);
+    }
+    return deletedReview;
   }
 }
