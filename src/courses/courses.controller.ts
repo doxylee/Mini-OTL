@@ -49,6 +49,12 @@ export class CoursesController {
     return toCourseWithLecturesDTO(course);
   }
 
+  @Get(':id/reviews')
+  async getReviewsOnCourse(@Param('id') id: number) {
+    return (await this.reviewsService.getReviewsByCourseId(id)).map(toReviewWithLikesDTO);
+  }
+
+
   @Get('lectures/:lectureId/reviews')
   async getReviewsOnLecture(@Param('lectureId') lectureId: number) {
     return (await this.reviewsService.getReviewsByLectureId(lectureId)).map(toReviewWithLikesDTO);
