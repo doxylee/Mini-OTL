@@ -20,7 +20,6 @@ import {
 } from 'src/common/dto/courses/courses.dto';
 import { ReviewsService } from 'src/reviews/reviews.service';
 import {
-  ReviewDataDTO,
   CreateReviewDTO,
   toReviewDTO,
   ReviewCreateBodyDTO,
@@ -55,7 +54,6 @@ export class CoursesController {
   async getReviewsOnCourse(@Param('id') id: number) {
     return (await this.reviewsService.getReviewsByCourseId(id)).map(toReviewWithLikesDTO);
   }
-
 
   @Get('lectures/:lectureId/reviews')
   async getReviewsOnLecture(@Param('lectureId') lectureId: number) {
@@ -96,6 +94,7 @@ export class CoursesController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(204)
   @Delete(':id/lectures/:lectureId/reviews/:reviewId')
   async deleteReview(
     @Param('id') id: number,
