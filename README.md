@@ -77,3 +77,10 @@ $ npx prisma migrate reset
 ```bash
 $ npx prisma generate
 ```
+
+### Access DB directly
+Terminal of DB container
+```bash
+$ mysql -u root -p miniotl
+password: {MYSQL_ROOT_PASSWORD configured in docker-compose.yml}
+```
