@@ -1,10 +1,22 @@
-import { ConflictException, NotFoundException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  ForbiddenException,
+  Injectable,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateReviewDTO, UpdateReviewDTO } from 'src/common/dto/reviews/reviews.dto';
 import { ReviewRepository } from 'src/prisma/repositories/review.repository';
+import { ReportsService } from './report.service';
 
 @Injectable()
 export class ReviewsService {
-  constructor(private readonly reviewRepository: ReviewRepository) {}
+  constructor(
+    private readonly reviewRepository: ReviewRepository,
+    @Inject(forwardRef(() => ReportsService))
+    private readonly reportService: ReportsService,
+  ) {}
 
   async createReview(data: CreateReviewDTO) {
     if (await this.reviewRepository.checkUserReviewExistsForLecture(data.userId, data.lectureId))
@@ -45,6 +57,8 @@ export class ReviewsService {
     const review = await this.reviewRepository.getReviewById(id);
     if (!review) throw new NotFoundException('Review not found');
     if (review.isDeleted) throw new ConflictException('Review already deleted');
+    if (!(await this.reportService.checkReportExistsForReview(id)))
+      throw new ForbiddenException('Review can only be deleted after being reported');
 
     return await this.reviewRepository.deleteReview(id);
   }

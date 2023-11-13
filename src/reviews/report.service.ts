@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { ReportCreateDTO } from 'src/common/dto/reviews/report.dto';
 import { ReportRepository } from 'src/prisma/repositories/report.repository';
 import { ReviewsService } from './reviews.service';
@@ -7,6 +7,7 @@ import { ReviewsService } from './reviews.service';
 export class ReportsService {
   constructor(
     private readonly reportRepository: ReportRepository,
+    @Inject(forwardRef(() => ReviewsService))
     private readonly reviewsService: ReviewsService,
   ) {}
 
@@ -16,5 +17,9 @@ export class ReportsService {
     if (!review) throw new NotFoundException('Review not found');
 
     return await this.reportRepository.create(data);
+  }
+
+  async checkReportExistsForReview(reviewId: number) {
+    return await this.reportRepository.checkReportExistsForReview(reviewId);
   }
 }

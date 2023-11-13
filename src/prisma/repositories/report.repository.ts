@@ -16,4 +16,8 @@ export class ReportRepository {
       },
     });
   }
+
+  async checkReportExistsForReview(reviewId: number): Promise<boolean> {
+    return !!(await this.prisma.report.findFirst({ where: { reviewId } }));
+  }
 }
