@@ -35,4 +35,12 @@ export class ReviewsService {
   async getReviewsByCourseId(courseId: number) {
     return this.reviewRepository.getReviewsWithLikesByCourseId(courseId);
   }
+
+  async deleteReviewByAdmin(id: number) {
+    const review = await this.reviewRepository.getReviewById(id);
+    if (!review) throw new NotFoundException('Review not found');
+    if (review.isDeleted) throw new ConflictException('Review already deleted');
+
+    return await this.reviewRepository.deleteReview(id);
+  }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   NotFoundException,
@@ -29,6 +30,7 @@ import {
 } from 'src/common/dto/reviews/reviews.dto';
 import { JWTPayload } from 'src/common/dto/auth/auth.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { AdminGuard } from 'src/auth/guard/admin.guard';
 
 @Controller('api/courses')
 export class CoursesController {
@@ -91,5 +93,15 @@ export class CoursesController {
     const review = await this.reviewsService.getReviewWithLikesById(reviewId);
     if (!review || review.isDeleted) throw new NotFoundException('Review not found');
     return toReviewWithLikesDTO(review);
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Delete(':id/lectures/:lectureId/reviews/:reviewId')
+  async deleteReview(
+    @Param('id') id: number,
+    @Param('lectureId') lectureId: number,
+    @Param('reviewId') reviewId: number,
+  ) {
+    await this.reviewsService.deleteReviewByAdmin(reviewId);
   }
 }

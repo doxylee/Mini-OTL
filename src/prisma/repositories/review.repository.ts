@@ -69,4 +69,8 @@ export class ReviewRepository {
       include: { _count: { select: { likedUsers: true } } },
     });
   }
+
+  async deleteReview(id: number): Promise<Review> {
+    return await this.prisma.review.update({ where: { id }, data: { isDeleted: true } });
+  }
 }
