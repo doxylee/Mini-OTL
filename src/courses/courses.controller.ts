@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, NotFoundException, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import {
   CourseFindQueryDTO,
@@ -35,6 +47,11 @@ export class CoursesController {
     const course = await this.coursesService.getCourseWithLectures(id);
     if (!course) throw new NotFoundException('Course not found');
     return toCourseWithLecturesDTO(course);
+  }
+
+  @Get('lectures/:lectureId/reviews')
+  async getReviewsOnLecture(@Param('lectureId') lectureId: number) {
+    return (await this.reviewsService.getReviewsByLectureId(lectureId)).map(toReviewWithLikesDTO);
   }
 
   @UseGuards(JwtAuthGuard)
