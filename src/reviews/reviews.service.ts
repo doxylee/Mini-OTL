@@ -16,12 +16,17 @@ export class ReviewsService {
 
   async updateReviewByUser(data: UpdateReviewDTO) {
     const { id, userId, lectureId, ...rest } = data;
-    const review = await this.reviewRepository.getReviewById(id);
-    if (!review || review.isDeleted) throw new NotFoundException('Review not found');
-    // TODO: Error if lectureId doesn't match?
+    const review = await this.getReviewWithId(id);
     if (review.userId !== userId) throw new ForbiddenException('Review can only be updated by its author');
 
     return this.reviewRepository.updateReview(id, rest);
+  }
+
+  async getReviewWithId(id: number) {
+    const review = await this.reviewRepository.getReviewById(id);
+    if (!review || review.isDeleted) throw new NotFoundException('Review not found');
+
+    return review;
   }
 
   async getReviewWithLikesById(id: number) {

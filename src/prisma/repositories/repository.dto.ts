@@ -31,3 +31,9 @@ export type ReviewUpdateInput = {
 };
 
 export type ReviewWithLikes = Review & { _count: { likedUsers: number } };
+
+export type ReportCreateInput = {
+  userId: number;
+  reviewId: number;
+  content: string;
+};
