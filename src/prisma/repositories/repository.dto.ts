@@ -1,4 +1,4 @@
-import { ClassTime, Course, Department, Lecture, Professor } from '@prisma/client';
+import { ClassTime, Course, Department, Lecture, Professor, Review } from '@prisma/client';
 
 export type UserCreateDTO = {
   email: string;
@@ -29,3 +29,5 @@ export type ReviewUpdateInput = {
   load: number;
   speech: number;
 };
+
+export type ReviewWithLikes = Review & { _count: { likedUsers: number } };

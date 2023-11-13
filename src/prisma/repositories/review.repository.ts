@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, Review } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
-import { ReviewCreateInput, ReviewUpdateInput } from './repository.dto';
+import { ReviewCreateInput, ReviewUpdateInput, ReviewWithLikes } from './repository.dto';
 
 @Injectable()
 export class ReviewRepository {
@@ -49,14 +49,21 @@ export class ReviewRepository {
     return await this.prisma.review.findUnique({ where: { id } });
   }
 
-  async getReviewsByLectureId(lectureId: number): Promise<Review[]> {
+  async getReviewWithLikesById(id: number): Promise<ReviewWithLikes | null> {
+    return await this.prisma.review.findUnique({
+      where: { id },
+      include: { _count: { select: { likedUsers: true } } },
+    });
+  }
+
+  async getReviewsWithLikesByLectureId(lectureId: number): Promise<ReviewWithLikes[]> {
     return await this.prisma.review.findMany({
       where: { lectureId, isDeleted: false },
       include: { _count: { select: { likedUsers: true } } },
     });
   }
 
-  async getReviewsByCourseId(courseId: number): Promise<Review[]> {
+  async getReviewsWithLikesByCourseId(courseId: number): Promise<ReviewWithLikes[]> {
     return await this.prisma.review.findMany({
       where: { lecture: { courseId }, isDeleted: false },
       include: { _count: { select: { likedUsers: true } } },

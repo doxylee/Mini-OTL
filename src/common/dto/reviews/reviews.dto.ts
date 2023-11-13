@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsInt, Min, Max } from 'class-validator';
+import { ReviewWithLikes } from 'src/prisma/repositories/repository.dto';
 
 export class ReviewDataDTO {
   @IsString()
@@ -62,5 +63,14 @@ export function toReviewDTO(review: ReviewDTO): ReviewDTO {
     grade: review.grade,
     load: review.load,
     speech: review.speech,
+  };
+}
+
+export type ReviewWithLikesDTO = ReviewDTO & { likes: number };
+
+export function toReviewWithLikesDTO(review: ReviewWithLikes): ReviewWithLikesDTO {
+  return {
+    ...toReviewDTO(review),
+    likes: review._count.likedUsers,
   };
 }

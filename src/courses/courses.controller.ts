@@ -13,6 +13,7 @@ import {
   ReviewCreateBodyDTO,
   ReviewUpdateBodyDTO,
   UpdateReviewDTO,
+  toReviewWithLikesDTO,
 } from 'src/common/dto/reviews/reviews.dto';
 import { JWTPayload } from 'src/common/dto/auth/auth.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -64,8 +65,8 @@ export class CoursesController {
 
   @Get('lectures/reviews/:reviewId')
   async reviewDetail(@Param('reviewId') reviewId: number) {
-    const review = await this.reviewsService.getReviewById(reviewId);
+    const review = await this.reviewsService.getReviewWithLikesById(reviewId);
     if (!review || review.isDeleted) throw new NotFoundException('Review not found');
-    return toReviewDTO(review);
+    return toReviewWithLikesDTO(review);
   }
 }

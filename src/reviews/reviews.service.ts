@@ -24,7 +24,15 @@ export class ReviewsService {
     return this.reviewRepository.updateReview(id, rest);
   }
 
-  async getReviewById(id: number) {
-    return this.reviewRepository.getReviewById(id);
+  async getReviewWithLikesById(id: number) {
+    return this.reviewRepository.getReviewWithLikesById(id);
+  }
+
+  async getReviewsByLectureId(lectureId: number) {
+    return this.reviewRepository.getReviewsWithLikesByLectureId(lectureId);
+  }
+
+  async getReviewsByCourseId(courseId: number) {
+    return this.reviewRepository.getReviewsWithLikesByCourseId(courseId);
   }
 }
