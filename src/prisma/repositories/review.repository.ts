@@ -70,6 +70,22 @@ export class ReviewRepository {
     });
   }
 
+  async likeReview(reviewId: number, userId: number): Promise<ReviewWithLikes> {
+    return await this.prisma.review.update({
+      where: { id: reviewId },
+      data: { likedUsers: { connect: { id: userId } } },
+      include: { _count: { select: { likedUsers: true } } },
+    });
+  }
+
+  async unlikeReview(reviewId: number, userId: number): Promise<ReviewWithLikes> {
+    return await this.prisma.review.update({
+      where: { id: reviewId },
+      data: { likedUsers: { disconnect: { id: userId } } },
+      include: { _count: { select: { likedUsers: true } } },
+    });
+  }
+
   async deleteReview(id: number): Promise<Review> {
     return await this.prisma.review.update({ where: { id }, data: { isDeleted: true } });
   }

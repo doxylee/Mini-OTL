@@ -53,6 +53,20 @@ export class ReviewsService {
     return this.reviewRepository.getReviewsWithLikesByCourseId(courseId);
   }
 
+  async likeReview(reviewId: number, userId: number) {
+    // Throws error if review doesn't exist
+    // TODO: Throw service exceptions instead of HTTP exceptions (for all services)
+    await this.getReviewWithId(reviewId);
+    return await this.reviewRepository.likeReview(reviewId, userId);
+  }
+
+  async unlikeReview(reviewId: number, userId: number) {
+    // Throws error if review doesn't exist
+    // TODO: Throw service exceptions instead of HTTP exceptions (for all services)
+    await this.getReviewWithId(reviewId);
+    return await this.reviewRepository.unlikeReview(reviewId, userId);
+  }
+
   async deleteReviewByAdmin(id: number) {
     const review = await this.reviewRepository.getReviewById(id);
     if (!review) throw new NotFoundException('Review not found');
