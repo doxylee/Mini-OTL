@@ -33,6 +33,7 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'refresh']) implements CanAc
       //   // TODO: Update refresh token in db
       //   res.cookie('jwt', access.token, access.options);
       // }
+      return true;
     }
     return false;
   }
