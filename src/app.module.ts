@@ -8,6 +8,7 @@ import { CoursesModule } from './courses/courses.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { LecturesModule } from './lectures/lectures.module';
 import { SemestersModule } from './semesters/semesters.module';
+import { TimetablesModule } from './timetables/timetables.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SemestersModule } from './semesters/semesters.module';
     ReviewsModule,
     LecturesModule,
     SemestersModule,
+    TimetablesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,9 +5,26 @@ import { CourseRepository } from './repositories/course.repository';
 import { ReviewRepository } from './repositories/review.repository';
 import { ReportRepository } from './repositories/report.repository';
 import { LectureRepository } from './repositories/lecture.repository';
+import { TimetableRepository } from './repositories/timetable.repository';
 
 @Module({
-  providers: [PrismaService, UserRepository, CourseRepository, LectureRepository, ReviewRepository, ReportRepository],
-  exports: [PrismaService, UserRepository, CourseRepository, LectureRepository, ReviewRepository, ReportRepository],
+  providers: [
+    PrismaService,
+    UserRepository,
+    CourseRepository,
+    LectureRepository,
+    ReviewRepository,
+    ReportRepository,
+    TimetableRepository,
+  ],
+  exports: [
+    PrismaService,
+    UserRepository,
+    CourseRepository,
+    LectureRepository,
+    ReviewRepository,
+    ReportRepository,
+    TimetableRepository,
+  ],
 })
 export class PrismaModule {}

@@ -53,3 +53,9 @@ export type LectureStatUpdateInput = {
   speechChange: number;
   reviewCountChange: number;
 };
+
+export type TimetableCreateInput = {
+  userId: number;
+  year: number;
+  season: number;
+};
