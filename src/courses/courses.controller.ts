@@ -9,7 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
@@ -30,6 +29,7 @@ import {
 import { JWTPayload } from 'src/common/dto/auth/auth.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AdminGuard } from 'src/auth/guard/admin.guard';
+import { JWTUser } from 'src/common/decorators/jwtuser.decorator';
 
 @Controller('api/courses')
 export class CoursesController {
@@ -64,12 +64,12 @@ export class CoursesController {
   @HttpCode(201)
   @Post('lectures/:lectureId/reviews')
   async createReview(
-    @Req() req: Request & { user: JWTPayload },
+    @JWTUser() user: JWTPayload,
     @Param('lectureId') lectureId: number,
     @Body() review: ReviewCreateBodyDTO,
   ) {
     // TODO: Is it right to use DTO in this way?
-    const dto: CreateReviewDTO = { ...review, lectureId, userId: req.user.id };
+    const dto: CreateReviewDTO = { ...review, lectureId, userId: user.id };
     return toReviewDTO(await this.reviewsService.createReview(dto));
   }
 
@@ -77,12 +77,12 @@ export class CoursesController {
   @HttpCode(200)
   @Patch('lectures/:lectureId/reviews/:id')
   async updateReview(
-    @Req() req: Request & { user: JWTPayload },
+    @JWTUser() user: JWTPayload,
     @Param('lectureId') lectureId: number,
     @Param('id') id: number,
     @Body() review: ReviewUpdateBodyDTO,
   ) {
-    const dto: UpdateReviewDTO = { ...review, id, lectureId, userId: req.user.id };
+    const dto: UpdateReviewDTO = { ...review, id, lectureId, userId: user.id };
     return toReviewDTO(await this.reviewsService.updateReviewByUser(dto));
   }
 
