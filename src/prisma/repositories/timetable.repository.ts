@@ -47,4 +47,20 @@ export class TimetableRepository {
       },
     });
   }
+
+  async removeLectureFromTimetable(timetableId: number, lectureId: number): Promise<TimetableWithFullLectures> {
+    return this.prisma.timetable.update({
+      where: { id: timetableId },
+      data: { lectures: { disconnect: { id: lectureId } } },
+      include: {
+        lectures: {
+          include: {
+            course: { include: { department: true } },
+            professor: true,
+            classTimes: true,
+          },
+        },
+      },
+    });
+  }
 }

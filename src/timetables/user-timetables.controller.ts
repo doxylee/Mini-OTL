@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { TimetablesService } from './timetables.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateTimetableBodyDTO, toTimetableWithLecturesDTO } from 'src/common/dto/timetables/timetables.dto';
@@ -38,6 +38,20 @@ export class UserTimetablesController {
     if (user.id !== userId) throw new ForbiddenException('You can only add lectures to your own timetable');
 
     const result = await this.timetablesService.addLectureToTimetableForUser(user.id, timetableId, lectureId);
+    return toTimetableWithLecturesDTO(result);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':timetableId/lectures/:lectureId')
+  async removeLectureFromTimetable(
+    @JWTUser() user: JWTPayload,
+    @Param('userId') userId: number,
+    @Param('timetableId') timetableId: number,
+    @Param('lectureId') lectureId: number,
+  ) {
+    if (user.id !== userId) throw new ForbiddenException('You can only remove lectures from your own timetable');
+
+    const result = await this.timetablesService.removeLectureFromTimetableForUser(user.id, timetableId, lectureId);
     return toTimetableWithLecturesDTO(result);
   }
 }

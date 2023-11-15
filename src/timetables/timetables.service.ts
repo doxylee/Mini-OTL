@@ -52,4 +52,12 @@ export class TimetablesService {
     if (a.startTime < b.endTime && a.endTime > b.startTime) return true;
     return false;
   }
+
+  async removeLectureFromTimetableForUser(userId: number, timetableId: number, lectureId: number) {
+    const timetable = await this.timetableRepository.getTimetableWithLectureTimesById(timetableId);
+    if (!timetable || timetable.userId != userId) throw new NotFoundException('Timetable not found');
+    if (!timetable.lectures.some((l) => l.id === lectureId)) throw new BadRequestException('Lecture not in timetable');
+
+    return this.timetableRepository.removeLectureFromTimetable(timetableId, lectureId);
+  }
 }
