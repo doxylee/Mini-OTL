@@ -28,6 +28,19 @@ export class UserTimetablesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get(':timetableId')
+  async getUserTimetable(
+    @JWTUser() user: JWTPayload,
+    @Param('userId') userId: number,
+    @Param('timetableId') timetableId: number,
+  ) {
+    if (user.id !== userId) throw new ForbiddenException('You can only get your own timetables');
+
+    const result = await this.timetablesService.getUserTimetableWithLectureById(user.id, timetableId);
+    return toTimetableWithLecturesDTO(result);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post(':timetableId/lectures/:lectureId')
   async addLectureToTimetable(
     @JWTUser() user: JWTPayload,

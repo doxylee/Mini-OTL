@@ -20,6 +20,12 @@ export class TimetablesService {
     return this.timetableRepository.getUserTimetablesWithLectures(userId);
   }
 
+  async getUserTimetableWithLectureById(userId: number, timetableId: number) {
+    const result = await this.timetableRepository.getTimetableWithLecturesById(timetableId);
+    if (!result || result.userId != userId) throw new NotFoundException('Timetable not found');
+    return result;
+  }
+
   async addLectureToTimetableForUser(userId: number, timetableId: number, lectureId: number) {
     const [timetable, lecture] = await Promise.all([
       this.timetableRepository.getTimetableWithLectureTimesById(timetableId),
