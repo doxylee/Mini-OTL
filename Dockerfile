@@ -63,4 +63,4 @@ COPY --chown=node:node .env.production .env
 EXPOSE 3000
 
 # Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+ENTRYPOINT [ "node", "dist/main.js" ]
