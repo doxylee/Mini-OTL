@@ -77,6 +77,14 @@ export class ReviewRepository {
     });
   }
 
+  // TODO: Better name
+  async getReviewsWithLikesLikedByUser(userId: number): Promise<ReviewWithLikes[]> {
+    return await this.prisma.review.findMany({
+      where: { likedUsers: { some: { id: userId } }, isDeleted: false },
+      include: { _count: { select: { likedUsers: true } } },
+    });
+  }
+
   async likeReview(reviewId: number, userId: number): Promise<ReviewWithLikes> {
     return await this.prisma.review.update({
       where: { id: reviewId },

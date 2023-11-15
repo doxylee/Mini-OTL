@@ -29,4 +29,11 @@ export class UsersController {
     const result = await this.reviewsService.getReviewsOfUser(jwt.id);
     return result.map(toReviewWithLikesDTO);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('reviews/likes')
+  async getReviewsILiked(@JWTUser() jwt: JWTPayload) {
+    const result = await this.reviewsService.getReviewsLikedByUser(jwt.id);
+    return result.map(toReviewWithLikesDTO);
+  }
 }

@@ -147,4 +147,8 @@ export class ReviewsService {
   async getReviewsOfUser(userId: number) {
     return this.reviewRepository.getReviewsWithLikesByUserId(userId);
   }
+
+  async getReviewsLikedByUser(userId: number) {
+    return this.reviewRepository.getReviewsWithLikesLikedByUser(userId);
+  }
 }
