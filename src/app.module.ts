@@ -10,7 +10,6 @@ import { LecturesModule } from './lectures/lectures.module';
 import { SemestersModule } from './semesters/semesters.module';
 import { TimetablesModule } from './timetables/timetables.module';
 
-console.log(`./env/.env.${process.env.NODE_ENV}`);
 @Module({
   imports: [
     // TODO: Study configmodule
