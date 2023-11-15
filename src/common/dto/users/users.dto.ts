@@ -1,4 +1,6 @@
 import { IsString, IsNotEmpty, IsInt } from 'class-validator';
+import { DepartmentDTO, toDepartmentDTO } from '../departments/departments.dto';
+import { UserWithDept } from 'src/prisma/repositories/repository.dto';
 
 export class CreateUserDTO {
   @IsString()
@@ -39,5 +41,21 @@ export function toUserDTO(user: UserDTO): UserDTO {
     lastName: user.lastName,
     departmentId: user.departmentId,
     isAdmin: user.isAdmin,
+  };
+}
+
+export type UserProfileDTO = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  department: DepartmentDTO;
+  isAdmin: boolean;
+};
+
+export function toUserProfileDTO(user: UserWithDept): UserProfileDTO {
+  return {
+    ...toUserDTO(user),
+    department: toDepartmentDTO(user.department),
   };
 }

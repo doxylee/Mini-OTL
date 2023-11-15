@@ -28,8 +28,8 @@ export class UsersService {
     });
   }
 
-  async getById(id: number) {
-    return this.userRepository.getById(id);
+  async getUserWithDeptById(id: number) {
+    return this.userRepository.getUserWithDeptById(id);
   }
 
   async getByEmail(email: string) {

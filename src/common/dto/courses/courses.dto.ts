@@ -3,6 +3,7 @@ import { IsInt, IsOptional, IsString, Length } from 'class-validator';
 
 import { CourseWithDept, CourseWithIncludes } from 'src/prisma/repositories/repository.dto';
 import { LectureWithProfessorResponseDTO, toLectureWithProfessorResponseDTO } from '../lectures/lectures.dto';
+import { DepartmentDTO, toDepartmentDTO } from '../departments/departments.dto';
 
 export type CourseResponseDTO = {
   id: number;
@@ -13,7 +14,7 @@ export type CourseResponseDTO = {
   lectureTime: number;
   labTime: number;
   credit: number;
-  departmentId: number;
+  department: DepartmentDTO;
   grade: number;
   load: number;
   speech: number;
@@ -29,7 +30,7 @@ export function courseWithDeptToCourseDTO(course: CourseWithDept): CourseRespons
     lectureTime: course.lectureTime,
     labTime: course.labTime,
     credit: course.credit,
-    departmentId: course.departmentId,
+    department: toDepartmentDTO(course.department),
     grade: course.reviewCount ? course.sumGrade / course.reviewCount : 0,
     load: course.reviewCount ? course.sumLoad / course.reviewCount : 0,
     speech: course.reviewCount ? course.sumSpeech / course.reviewCount : 0,

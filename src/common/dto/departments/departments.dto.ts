@@ -4,3 +4,12 @@ export type DepartmentDTO = {
   nameEn: string;
   deptCode: string;
 };
+
+export function toDepartmentDTO(department: DepartmentDTO): DepartmentDTO {
+  return {
+    id: department.id,
+    nameKo: department.nameKo,
+    nameEn: department.nameEn,
+    deptCode: department.deptCode,
+  };
+}
