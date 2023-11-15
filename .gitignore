@@ -39,4 +39,4 @@ lerna-debug.log*
 
 # ENV files
 *.env*
-!env/.env.template
+!.env.template
