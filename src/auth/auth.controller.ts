@@ -17,15 +17,14 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req: Request & { user: User }, @Res({ passthrough: true }) res: Response): Promise<UserDTO> {
-    const userDTO = toUserDTO(req.user);
-    const access = await this.authService.getAccessTokenAndOptions(userDTO);
-    const refresh = await this.authService.getRefreshTokenAndOptions(userDTO);
+    const access = await this.authService.getAccessTokenAndOptions(req.user);
+    const refresh = await this.authService.getRefreshTokenAndOptions(req.user);
 
     // TODO: Update refresh token in db
     res.cookie('jwt', access.token, access.options);
     res.cookie('refresh', refresh.token, refresh.options);
 
-    return userDTO;
+    return toUserDTO(req.user);
   }
 
   @Post('signup')
