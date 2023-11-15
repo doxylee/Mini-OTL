@@ -1,19 +1,32 @@
 # Mini-OTL
 
+## Prerequisites
+
+- docker and docker-compose (You can install docker desktop for windows or mac)
+- nodejs 18
+- npm
+
 ## Installation & Setup
+
+Install dependencies
 
 ```bash
 $ npm install
 ```
 
+Create and start a mysql container. Set a password for root user.
+
 ```bash
+$ export MYSQL_ROOT_PASSWORD={DB root password} # for mac or linux
+$ set MYSQL_ROOT_PASSWORD={DB root password} # for windows
 $ docker compose up
 ```
 
 Connect to the running mysql container and run the following command.
+
 ```bash
 $ mysql -u root -p
-password: {MYSQL_ROOT_PASSWORD configured in docker-compose.yml}
+password: {DB root password}
 ```
 
 ```sql
@@ -22,26 +35,30 @@ mysql> GRANT ALL PRIVILEGES ON *.* TO 'backend';
 mysql> FLUSH PRIVILEGES;
 ```
 
-Exit and migrate DB
+Create a .env file to be used for developemnt in the root directory and set the environment variables according to .env.template file. Here's an example.
+
+```
+DATABASE_URL="mysql://backend:password@localhost:43306/miniotl"
+JWT_ACCESS_TOKEN_SECRET="secret"
+JWT_ACCESS_TOKEN_EXP_SEC="3600"
+JWT_REFRESH_TOKEN_SECRET="secret2"
+JWT_REFRESH_TOKEN_EXP_SEC="108000"
+```
+
+Migrate DB
+
 ```bash
 $ npx prisma migrate deploy
 ```
-
 
 ## Running the app
 
 ```bash
 # run DB
-$ docker compose up
+$ make db
 
 # development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+$ make dev
 ```
 
 ## Test
@@ -57,30 +74,53 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## DB
-### Migration
+## Production
+
+You should have the .env.production file in the root directory.
+
 ```bash
-$ npx prisma migrate dev --name {name}
+# Build production image
+make build
+
+# Run the image in a container
+make run
+
+# Stop the container. Takes some time to stop the container.
+make stop
+
+# Kill the container immediately.
+make kill
 ```
 
-### Seeding DB
+## DB related commands
+
+### Update Prisma client to schema changes
+
+```bash
+$ npx prisma generate
+```
+
+### Create a new migration
+
+```bash
+$ npx prisma migrate dev
+```
+
+### Create seed rows in DB
+
 ```bash
 $ npx prisma db seed
 ```
 
 ### Reset DB
+
 ```bash
 $ npx prisma migrate reset
 ```
 
-### Prisma client generation
-```bash
-$ npx prisma generate
-```
-
 ### Access DB directly
-Terminal of DB container
+
 ```bash
-$ mysql -u root -p miniotl
-password: {MYSQL_ROOT_PASSWORD configured in docker-compose.yml}
+$ docker exec -it mini-otl-server-db mysql -u root -p miniotl
+password: {DB root password}
 ```
