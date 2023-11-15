@@ -12,7 +12,13 @@ export type UserCreateDTO = {
 export type CourseWithDept = Course & { department: Department };
 export type CourseWithIncludes = CourseWithDept & { lectures: LectureWithProfessorClassTimes[] };
 
-export type LectureWithProfessorClassTimes = Lecture & { professor: Professor; classTimes: ClassTime[] };
+export type LecturewithClassTimes = Lecture & { classTimes: ClassTime[] };
+
+export type LectureWithProfessorClassTimes = Lecture & {
+  professor: Professor;
+  classTimes: ClassTime[];
+};
+
 export type LectureWithCourseProfessorClasstime = Lecture & {
   course: CourseWithDept;
   professor: Professor;
@@ -65,4 +71,6 @@ export type TimetableCreateInput = {
   season: number;
 };
 
-export type TimetableWithLectures = Timetable & { lectures: LectureWithCourseProfessorClasstime[] };
+export type TimetableWithFullLectures = Timetable & { lectures: LectureWithCourseProfessorClasstime[] };
+
+export type TimetableWithLectureTimes = Timetable & { lectures: LecturewithClassTimes[] };

@@ -1,6 +1,6 @@
 import { IsInt, Min, Max } from 'class-validator';
 import { TimetableLectureItemDTO, toTimetableLectureItemDTO } from '../lectures/lectures.dto';
-import { TimetableWithLectures } from 'src/prisma/repositories/repository.dto';
+import { TimetableWithFullLectures } from 'src/prisma/repositories/repository.dto';
 
 export class CreateTimetableBodyDTO {
   @IsInt()
@@ -26,7 +26,7 @@ export type TimetableWithLecturesDTO = {
   lectures: TimetableLectureItemDTO[];
 };
 
-export function toTimetableWithLecturesDTO(timetable: TimetableWithLectures): TimetableWithLecturesDTO {
+export function toTimetableWithLecturesDTO(timetable: TimetableWithFullLectures): TimetableWithLecturesDTO {
   return {
     id: timetable.id,
     userId: timetable.userId,

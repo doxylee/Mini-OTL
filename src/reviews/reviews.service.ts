@@ -29,7 +29,7 @@ export class ReviewsService {
     if (await this.reviewRepository.checkUserReviewExistsForLecture(data.userId, data.lectureId))
       throw new ConflictException("User's review already exists for this lecture");
 
-    const lecture = await this.lecturesService.getLectureById(data.lectureId);
+    const lecture = await this.lecturesService.getLectureWithClasstimesById(data.lectureId);
 
     const newReview = await this.reviewRepository.createReview(data);
     try {
@@ -56,7 +56,7 @@ export class ReviewsService {
     const review = await this.getReviewWithId(id);
     if (review.userId !== userId) throw new ForbiddenException('Review can only be updated by its author');
 
-    const lecture = await this.lecturesService.getLectureById(data.lectureId);
+    const lecture = await this.lecturesService.getLectureWithClasstimesById(data.lectureId);
 
     const newReview = await this.reviewRepository.updateReview(id, rest);
     try {
@@ -119,7 +119,7 @@ export class ReviewsService {
     if (review.isDeleted) throw new ConflictException('Review already deleted');
     if (!(await this.reportService.checkReportExistsForReview(id)))
       throw new ForbiddenException('Review can only be deleted after being reported');
-    const lecture = await this.lecturesService.getLectureById(review.lectureId);
+    const lecture = await this.lecturesService.getLectureWithClasstimesById(review.lectureId);
 
     const deletedReview = await this.reviewRepository.deleteReview(id);
 

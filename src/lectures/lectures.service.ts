@@ -6,8 +6,8 @@ import { LectureStatUpdateInput } from 'src/prisma/repositories/repository.dto';
 export class LecturesService {
   constructor(private readonly lecturesRepository: LectureRepository) {}
 
-  async getLectureById(id: number) {
-    const lecture = await this.lecturesRepository.getLectureById(id);
+  async getLectureWithClasstimesById(id: number) {
+    const lecture = await this.lecturesRepository.getLectureWithClasstimesById(id);
     // TODO: Throw service exceptions instead of HTTP exceptions (for all services)
     if (!lecture) throw new NotFoundException('Lecture not found');
     return lecture;
