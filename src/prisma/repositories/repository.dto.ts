@@ -1,4 +1,4 @@
-import { ClassTime, Course, Department, Lecture, Professor, Review } from '@prisma/client';
+import { ClassTime, Course, Department, Lecture, Professor, Review, Timetable } from '@prisma/client';
 
 export type UserCreateDTO = {
   email: string;
@@ -13,6 +13,11 @@ export type CourseWithDept = Course & { department: Department };
 export type CourseWithIncludes = CourseWithDept & { lectures: LectureWithProfessorClassTimes[] };
 
 export type LectureWithProfessorClassTimes = Lecture & { professor: Professor; classTimes: ClassTime[] };
+export type LectureWithCourseProfessorClasstime = Lecture & {
+  course: CourseWithDept;
+  professor: Professor;
+  classTimes: ClassTime[];
+};
 
 export type ReviewCreateInput = {
   userId: number;
@@ -59,3 +64,5 @@ export type TimetableCreateInput = {
   year: number;
   season: number;
 };
+
+export type TimetableWithLectures = Timetable & { lectures: LectureWithCourseProfessorClasstime[] };

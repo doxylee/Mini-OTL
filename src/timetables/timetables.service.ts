@@ -9,4 +9,8 @@ export class TimetablesService {
   async createTimetableForUser(data: CreateTimetableDTO) {
     return this.timetableRepository.create(data);
   }
+
+  async getUserTimetablesWithLectures(userId: number) {
+    return this.timetableRepository.getUserTimetablesWithLectures(userId);
+  }
 }

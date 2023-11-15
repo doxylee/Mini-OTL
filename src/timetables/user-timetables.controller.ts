@@ -1,7 +1,7 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { TimetablesService } from './timetables.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { CreateTimetableBodyDTO } from 'src/common/dto/timetables/timetables.dto';
+import { CreateTimetableBodyDTO, toTimetableWithLecturesDTO } from 'src/common/dto/timetables/timetables.dto';
 import { JWTUser } from 'src/common/decorators/jwtuser.decorator';
 import { JWTPayload } from 'src/common/dto/auth/auth.dto';
 
@@ -12,6 +12,18 @@ export class UserTimetablesController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async createTimetable(@JWTUser() user: JWTPayload, @Body() body: CreateTimetableBodyDTO) {
-    return this.timetablesService.createTimetableForUser({ userId: user.id, ...body });
+    return toTimetableWithLecturesDTO({
+      ...(await this.timetablesService.createTimetableForUser({ userId: user.id, ...body })),
+      lectures: [],
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getUserTimetables(@JWTUser() user: JWTPayload, @Param('userId') userId: number) {
+    if (user.id !== userId) throw new ForbiddenException('You can only get your own timetables');
+
+    const result = await this.timetablesService.getUserTimetablesWithLectures(user.id);
+    return result.map(toTimetableWithLecturesDTO);
   }
 }
