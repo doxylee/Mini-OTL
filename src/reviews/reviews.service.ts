@@ -143,4 +143,8 @@ export class ReviewsService {
     }
     return deletedReview;
   }
+
+  async getReviewsOfUser(userId: number) {
+    return this.reviewRepository.getReviewsWithLikesByUserId(userId);
+  }
 }

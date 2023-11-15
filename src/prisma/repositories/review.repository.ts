@@ -70,6 +70,13 @@ export class ReviewRepository {
     });
   }
 
+  async getReviewsWithLikesByUserId(userId: number): Promise<ReviewWithLikes[]> {
+    return await this.prisma.review.findMany({
+      where: { userId, isDeleted: false },
+      include: { _count: { select: { likedUsers: true } } },
+    });
+  }
+
   async likeReview(reviewId: number, userId: number): Promise<ReviewWithLikes> {
     return await this.prisma.review.update({
       where: { id: reviewId },
