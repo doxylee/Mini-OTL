@@ -18,14 +18,14 @@ export class ReviewsController {
   @Post(':reviewId/likes')
   async likeReview(@JWTUser() user: JWTPayload, @Param('reviewId') reviewId: number) {
     // TODO: Also return whether the review is liked by user or not (for most APIs)
-    return toReviewWithLikesDTO(await this.reviewsService.likeReview(reviewId, user.id));
+    return toReviewWithLikesDTO(user.id)(await this.reviewsService.likeReview(reviewId, user.id));
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':reviewId/likes')
   async unlikeReview(@JWTUser() user: JWTPayload, @Param('reviewId') reviewId: number) {
     // TODO: Also return whether the review is liked by user or not (for most APIs)
-    return toReviewWithLikesDTO(await this.reviewsService.unlikeReview(reviewId, user.id));
+    return toReviewWithLikesDTO(user.id)(await this.reviewsService.unlikeReview(reviewId, user.id));
   }
 
   @UseGuards(JwtAuthGuard)

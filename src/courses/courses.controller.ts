@@ -30,6 +30,7 @@ import { JWTPayload } from 'src/common/dto/auth/auth.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AdminGuard } from 'src/auth/guard/admin.guard';
 import { JWTUser } from 'src/common/decorators/jwtuser.decorator';
+import { Public } from 'src/auth/decorator/skip-auth.decorator';
 
 @Controller('api/courses')
 export class CoursesController {
@@ -50,14 +51,18 @@ export class CoursesController {
     return toCourseWithLecturesDTO(course);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get(':id/reviews')
-  async getReviewsOnCourse(@Param('id') id: number) {
-    return (await this.reviewsService.getReviewsByCourseId(id)).map(toReviewWithLikesDTO);
+  async getReviewsOnCourse(@Param('id') id: number, @JWTUser() user?: JWTPayload) {
+    return (await this.reviewsService.getReviewsByCourseId(id)).map(toReviewWithLikesDTO(user?.id));
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get('lectures/:lectureId/reviews')
-  async getReviewsOnLecture(@Param('lectureId') lectureId: number) {
-    return (await this.reviewsService.getReviewsByLectureId(lectureId)).map(toReviewWithLikesDTO);
+  async getReviewsOnLecture(@Param('lectureId') lectureId: number, @JWTUser() user?: JWTPayload) {
+    return (await this.reviewsService.getReviewsByLectureId(lectureId)).map(toReviewWithLikesDTO(user?.id));
   }
 
   @UseGuards(JwtAuthGuard)
@@ -70,7 +75,7 @@ export class CoursesController {
   ) {
     // TODO: Is it right to use DTO in this way?
     const dto: CreateReviewDTO = { ...review, lectureId, userId: user.id };
-    return toReviewDTO(await this.reviewsService.createReview(dto));
+    return toReviewDTO(user.id)(await this.reviewsService.createReview(dto));
   }
 
   @UseGuards(JwtAuthGuard)
@@ -83,14 +88,16 @@ export class CoursesController {
     @Body() review: ReviewUpdateBodyDTO,
   ) {
     const dto: UpdateReviewDTO = { ...review, id, lectureId, userId: user.id };
-    return toReviewDTO(await this.reviewsService.updateReviewByUser(dto));
+    return toReviewDTO(user.id)(await this.reviewsService.updateReviewByUser(dto));
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get('lectures/reviews/:reviewId')
-  async reviewDetail(@Param('reviewId') reviewId: number) {
+  async reviewDetail(@Param('reviewId') reviewId: number, @JWTUser() user?: JWTPayload) {
     const review = await this.reviewsService.getReviewWithLikesById(reviewId);
     if (!review || review.isDeleted) throw new NotFoundException('Review not found');
-    return toReviewWithLikesDTO(review);
+    return toReviewWithLikesDTO(user?.id)(review);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

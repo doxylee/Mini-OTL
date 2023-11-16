@@ -1,3 +1,4 @@
+import { Review } from '@prisma/client';
 import { IsString, IsNotEmpty, IsInt, Min, Max } from 'class-validator';
 import { ReviewWithLikes } from 'src/prisma/repositories/repository.dto';
 
@@ -46,31 +47,32 @@ export type UpdateReviewDTO = {
 
 export type ReviewDTO = {
   id: number;
-  userId: number;
   lectureId: number;
   content: string;
   grade: number;
   load: number;
   speech: number;
+  mine: boolean;
 };
 
-export function toReviewDTO(review: ReviewDTO): ReviewDTO {
-  return {
+export const toReviewDTO =
+  (currentUserId?: number) =>
+  (review: Review): ReviewDTO => ({
     id: review.id,
-    userId: review.userId,
     lectureId: review.lectureId,
     content: review.content,
     grade: review.grade,
     load: review.load,
     speech: review.speech,
-  };
-}
+    mine: review.userId === currentUserId,
+  });
 
 export type ReviewWithLikesDTO = ReviewDTO & { likes: number };
 
-export function toReviewWithLikesDTO(review: ReviewWithLikes): ReviewWithLikesDTO {
-  return {
-    ...toReviewDTO(review),
+export const toReviewWithLikesDTO = (currentUserId?: number) => {
+  const toReview = toReviewDTO(currentUserId);
+  return (review: ReviewWithLikes): ReviewWithLikesDTO => ({
+    ...toReview(review),
     likes: review._count.likedUsers,
-  };
-}
+  });
+};
