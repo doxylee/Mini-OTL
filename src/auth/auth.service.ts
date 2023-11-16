@@ -26,8 +26,6 @@ export class AuthService {
   async validateRefreshAndGenerateAccessToken(userId: number, refreshToken: string): Promise<TokenRefreshPayload> {
     const user = await this.usersService.getUserById(userId);
     if (!user) throw new NotFoundException('User not found');
-    console.log ('user.refreshToken', user.refreshToken);
-    console.log ('refreshToken', refreshToken);
     if (user.refreshToken !== refreshToken) throw new RefreshTokenInvalidException();
 
     const payload: JWTPayload = { id: user.id, isAdmin: user.isAdmin };

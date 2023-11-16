@@ -22,7 +22,6 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'refresh']) implements CanAc
       if (authenticated) {
         const request = context.switchToHttp().getRequest() as { user: JWTPayload | TokenRefreshPayload };
         const response = context.switchToHttp().getResponse();
-        console.log('request.user', request.user);
         if ('access' in request.user) {
           const { access, ...newPayload } = request.user;
           request.user = newPayload;

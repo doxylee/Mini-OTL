@@ -22,7 +22,6 @@ export class AuthController {
     const access = this.authService.getAccessTokenAndOptions(payload);
     const refresh = this.authService.getRefreshTokenAndOptions(payload);
 
-    console.log('login', req.user.id, refresh.token);
     await this.usersService.updateRefreshToken(req.user.id, refresh.token);
 
     // TODO: Update refresh token in db
