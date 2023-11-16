@@ -41,6 +41,7 @@ export class ReviewsService {
       };
       await Promise.all([
         this.coursesService.updateCourseStats({ ...changes, courseId: lecture.courseId }),
+        this.coursesService.updateCourseLastReviewId(lecture.courseId),
         this.lecturesService.updateLectureStats({ ...changes, lectureId: data.lectureId }),
       ]);
     } catch (e) {
@@ -88,7 +89,7 @@ export class ReviewsService {
     return review;
   }
 
-  async getReviewWithLikesById(id: number, userid: number|undefined) {
+  async getReviewWithLikesById(id: number, userid: number | undefined) {
     return this.reviewRepository.getReviewWithLikesById(id, userid);
   }
 
@@ -136,6 +137,7 @@ export class ReviewsService {
       if (changes.gradeChange || changes.loadChange || changes.speechChange) {
         await Promise.all([
           this.coursesService.updateCourseStats({ ...changes, courseId: lecture.courseId }),
+          this.coursesService.updateCourseLastReviewId(lecture.courseId),
           this.lecturesService.updateLectureStats({ ...changes, lectureId: review.lectureId }),
         ]);
       }

@@ -22,6 +22,10 @@ export class CoursesService {
     return await this.courseRepository.updateCourseStats(data);
   }
 
+  async updateCourseLastReviewId(courseId: number) {
+    return await this.courseRepository.updateLastReviewId(courseId);
+  }
+
   async userSawReviewOnCourse(courseId: number, userId: number) {
     const course = await this.courseRepository.getCoursebyId(courseId);
     if (!course) throw new NotFoundException('Course not found');
