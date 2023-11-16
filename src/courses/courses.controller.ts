@@ -16,6 +16,7 @@ import {
   CourseFindQueryDTO,
   courseWithDeptToCourseDTO,
   toCourseWithLecturesDTO,
+  toCourseWithUnseenReviewDTO,
 } from 'src/common/dto/courses/courses.dto';
 import { ReviewsService } from 'src/reviews/reviews.service';
 import {
@@ -32,6 +33,11 @@ import { AdminGuard } from 'src/auth/guard/admin.guard';
 import { JWTUser } from 'src/common/decorators/jwtuser.decorator';
 import { Public } from 'src/auth/decorator/skip-auth.decorator';
 import { toUserLastSeenReviewOnCourseDTO } from 'src/common/dto/courses/userLastSeenReviewOnCourse.dto';
+import {
+  CourseWithDept,
+  CourseWithDeptAndLastSeenReview,
+  isCourseWithDeptAndLastSeenReview,
+} from 'src/prisma/repositories/repository.dto';
 
 @Controller('api/courses')
 export class CoursesController {
@@ -40,9 +46,13 @@ export class CoursesController {
     private readonly reviewsService: ReviewsService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get()
-  async findFiltered(@Query() filter: CourseFindQueryDTO) {
-    return (await this.coursesService.findFiltered(filter)).map(courseWithDeptToCourseDTO);
+  async findFiltered(@Query() filter: CourseFindQueryDTO, @JWTUser() user?: JWTPayload) {
+    const result = await this.coursesService.findFiltered(filter, user?.id);
+    if (isCourseWithDeptAndLastSeenReviewArray(result)) return result.map(toCourseWithUnseenReviewDTO);
+    else return result.map(courseWithDeptToCourseDTO);
   }
 
   @Get(':id')
@@ -121,4 +131,10 @@ export class CoursesController {
     if (!result) return toUserLastSeenReviewOnCourseDTO({ userId: user.id, courseId: id, lastSeenReviewId: null });
     await toUserLastSeenReviewOnCourseDTO(result);
   }
+}
+
+function isCourseWithDeptAndLastSeenReviewArray(
+  arg: CourseWithDept[] | CourseWithDeptAndLastSeenReview[],
+): arg is CourseWithDeptAndLastSeenReview[] {
+  return arg.some(isCourseWithDeptAndLastSeenReview);
 }

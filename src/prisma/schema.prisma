@@ -60,7 +60,7 @@ model Course {
   reviewCount                Int                          @default(0)
   lectures                   Lecture[]
   lastReviewId               Int?
-  UserLastSeenReviewOnCourse UserLastSeenReviewOnCourse[]
+  userLastSeenReviewOnCourse UserLastSeenReviewOnCourse[]
 
   @@unique([departmentId, courseNumCode])
 }

@@ -1,7 +1,11 @@
 import { Transform } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Length } from 'class-validator';
 
-import { CourseWithDept, CourseWithIncludes } from 'src/prisma/repositories/repository.dto';
+import {
+  CourseWithDept,
+  CourseWithDeptAndLastSeenReview,
+  CourseWithIncludes,
+} from 'src/prisma/repositories/repository.dto';
 import { LectureWithProfessorResponseDTO, toLectureWithProfessorResponseDTO } from '../lectures/lectures.dto';
 import { DepartmentDTO, toDepartmentDTO } from '../departments/departments.dto';
 
@@ -34,6 +38,16 @@ export function courseWithDeptToCourseDTO(course: CourseWithDept): CourseRespons
     grade: course.reviewCount ? course.sumGrade / course.reviewCount : 0,
     load: course.reviewCount ? course.sumLoad / course.reviewCount : 0,
     speech: course.reviewCount ? course.sumSpeech / course.reviewCount : 0,
+  };
+}
+
+export type CourseWithUnseenReviewResponseDTO = CourseResponseDTO & { unseenReview: boolean };
+export function toCourseWithUnseenReviewDTO(
+  course: CourseWithDeptAndLastSeenReview,
+): CourseWithUnseenReviewResponseDTO {
+  return {
+    ...courseWithDeptToCourseDTO(course),
+    unseenReview: (course.lastReviewId ?? 0) > (course.userLastSeenReviewOnCourse?.[0]?.lastSeenReviewId ?? 0),
   };
 }
 

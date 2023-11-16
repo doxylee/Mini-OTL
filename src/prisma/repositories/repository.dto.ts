@@ -1,4 +1,14 @@
-import { ClassTime, Course, Department, Lecture, Professor, Review, Timetable, User } from '@prisma/client';
+import {
+  ClassTime,
+  Course,
+  Department,
+  Lecture,
+  Professor,
+  Review,
+  Timetable,
+  User,
+  UserLastSeenReviewOnCourse,
+} from '@prisma/client';
 
 export type UserCreateDTO = {
   email: string;
@@ -12,6 +22,16 @@ export type UserCreateDTO = {
 export type UserWithDept = User & { department: Department };
 
 export type CourseWithDept = Course & { department: Department };
+
+export type CourseWithDeptAndLastSeenReview = CourseWithDept & {
+  userLastSeenReviewOnCourse: UserLastSeenReviewOnCourse[];
+};
+export function isCourseWithDeptAndLastSeenReview(
+  course: CourseWithDept | CourseWithDeptAndLastSeenReview,
+): course is CourseWithDeptAndLastSeenReview {
+  return 'userLastSeenReviewOnCourse' in course;
+}
+
 export type CourseWithIncludes = CourseWithDept & { lectures: LectureWithProfessorClassTimes[] };
 
 export type LecturewithClassTimes = Lecture & { classTimes: ClassTime[] };

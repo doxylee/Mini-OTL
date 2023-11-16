@@ -14,8 +14,8 @@ export class CoursesService {
     return await this.courseRepository.getCourseWithLectures(id);
   }
 
-  async findFiltered(filter: CourseFindFilter) {
-    return await this.courseRepository.findFiltered(filter);
+  async findFiltered(filter: CourseFindFilter, userId?: number) {
+    return await this.courseRepository.findFiltered(filter, userId);
   }
 
   async updateCourseStats(data: CourseStatUpdateInput) {
