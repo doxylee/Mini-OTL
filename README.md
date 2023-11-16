@@ -1,5 +1,8 @@
 # Mini-OTL
 
+## [Postman API documentation](https://www.postman.com/aviation-physicist-85866318/workspace/mini-otl/collection/31024888-7a861ae0-69ed-44e6-81ef-54f49e891b4b?action=share&creator=31024888)
+Requires Postman account and desktop app to try on localhost environment.
+
 ## Prerequisites
 
 - docker and docker-compose (You can install docker desktop for windows or mac)
