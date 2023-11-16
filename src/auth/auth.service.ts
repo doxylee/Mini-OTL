@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { JWTPayload } from 'src/common/dto/auth/auth.dto';
+import { JWTPayload, TokenAndCookieOptions, TokenRefreshPayload, toJWTPayload } from 'src/common/dto/auth/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RefreshTokenInvalidException } from './refresh.exception';
 
 @Injectable()
 export class AuthService {
@@ -22,8 +23,19 @@ export class AuthService {
     return null;
   }
 
-  getAccessTokenAndOptions(payload: JWTPayload) {
-    const token = this.jwtService.sign(payload, {
+  async validateRefreshAndGenerateAccessToken(userId: number, refreshToken: string): Promise<TokenRefreshPayload> {
+    const user = await this.usersService.getUserById(userId);
+    if (!user) throw new NotFoundException('User not found');
+    console.log ('user.refreshToken', user.refreshToken);
+    console.log ('refreshToken', refreshToken);
+    if (user.refreshToken !== refreshToken) throw new RefreshTokenInvalidException();
+
+    const payload: JWTPayload = { id: user.id, isAdmin: user.isAdmin };
+    return { ...payload, access: this.getAccessTokenAndOptions(payload) };
+  }
+
+  getAccessTokenAndOptions(payload: JWTPayload): TokenAndCookieOptions {
+    const token = this.jwtService.sign(toJWTPayload(payload), {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: `${this.configService.get('JWT_ACCESS_TOKEN_EXP_SEC')}s`,
     });
@@ -40,8 +52,8 @@ export class AuthService {
     };
   }
 
-  getRefreshTokenAndOptions(payload: JWTPayload) {
-    const token = this.jwtService.sign(payload, {
+  getRefreshTokenAndOptions(payload: JWTPayload): TokenAndCookieOptions {
+    const token = this.jwtService.sign(toJWTPayload(payload), {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn: `${this.configService.get('JWT_REFRESH_TOKEN_EXP_SEC')}s`,
     });

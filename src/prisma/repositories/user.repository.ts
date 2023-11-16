@@ -20,8 +20,16 @@ export class UserRepository {
     });
   }
 
+  async updateRefreshToken(userId: number, refreshToken: string): Promise<User> {
+    return await this.prisma.user.update({ where: { id: userId }, data: { refreshToken } });
+  }
+
   async getUserWithDeptById(id: number): Promise<UserWithDept | null> {
     return this.prisma.user.findUnique({ where: { id }, include: { department: true } });
+  }
+
+  async getById(id: number): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
   async getByEmail(email: string): Promise<User | null> {

@@ -19,6 +19,7 @@ model User {
   department         Department  @relation(fields: [departmentId], references: [id])
   departmentId       Int
   isAdmin            Boolean     @default(false)
+  refreshToken       String?
   reviews            Review[]
   writtenReports     Report[]
   timetables         Timetable[]

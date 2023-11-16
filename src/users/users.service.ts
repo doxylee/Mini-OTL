@@ -28,6 +28,14 @@ export class UsersService {
     });
   }
 
+  async updateRefreshToken(userId: number, refreshToken: string) {
+    return this.userRepository.updateRefreshToken(userId, refreshToken);
+  }
+
+  async getUserById(id: number) {
+    return this.userRepository.getById(id);
+  }
+
   async getUserWithDeptById(id: number) {
     return this.userRepository.getUserWithDeptById(id);
   }
@@ -35,4 +43,5 @@ export class UsersService {
   async getByEmail(email: string) {
     return this.userRepository.getByEmail(email);
   }
+  
 }

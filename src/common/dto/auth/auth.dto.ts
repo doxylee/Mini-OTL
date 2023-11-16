@@ -21,3 +21,10 @@ export function toJWTPayload(user: JWTPayload): JWTPayload {
     isAdmin: user.isAdmin,
   };
 }
+
+export type TokenAndCookieOptions = {
+  token: string;
+  options: { domain: string; path: string; httpOnly: boolean; maxAge: number };
+};
+
+export type TokenRefreshPayload = JWTPayload & { access: TokenAndCookieOptions };

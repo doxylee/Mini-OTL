@@ -6,6 +6,7 @@ import { CreateUserDTO, UserDTO, toUserDTO } from 'src/common/dto/users/users.dt
 import { LocalAuthGuard } from 'src/auth/guard/local-auth.guard';
 import { User } from '@prisma/client';
 import { UsersService } from 'src/users/users.service';
+import { JWTPayload } from 'src/common/dto/auth/auth.dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -17,8 +18,12 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req: Request & { user: User }, @Res({ passthrough: true }) res: Response): Promise<UserDTO> {
-    const access = await this.authService.getAccessTokenAndOptions(req.user);
-    const refresh = await this.authService.getRefreshTokenAndOptions(req.user);
+    const payload: JWTPayload = { id: req.user.id, isAdmin: req.user.isAdmin };
+    const access = this.authService.getAccessTokenAndOptions(payload);
+    const refresh = this.authService.getRefreshTokenAndOptions(payload);
+
+    console.log('login', req.user.id, refresh.token);
+    await this.usersService.updateRefreshToken(req.user.id, refresh.token);
 
     // TODO: Update refresh token in db
     res.cookie('jwt', access.token, access.options);
