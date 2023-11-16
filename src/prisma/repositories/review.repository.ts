@@ -3,6 +3,30 @@ import { Prisma, Review } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { ReviewCreateInput, ReviewUpdateInput, ReviewWithLikes } from './repository.dto';
 
+const reviewWithLikeSelect = (userId?: number) => ({
+  id: true,
+  lectureId: true,
+  userId: true,
+  content: true,
+  grade: true,
+  load: true,
+  speech: true,
+  isDeleted: true,
+  likedUsers: userId ? { select: { id: true }, where: { id: userId } } : undefined,
+  _count: { select: { likedUsers: true } },
+});
+
+function toReviewWithLikes<
+  T extends (Review & { likedUsers?: { id: number }[]; _count: { likedUsers: number } }) | null,
+>(review: T): T extends null ? ReviewWithLikes | null : ReviewWithLikes {
+  if (!review) return null as T extends null ? null : ReviewWithLikes;
+  return {
+    ...review,
+    liked: !!review.likedUsers?.length,
+    _count: { likedUsers: review._count?.likedUsers ?? 0 },
+  };
+}
+
 @Injectable()
 export class ReviewRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -34,7 +58,7 @@ export class ReviewRepository {
 
   async updateReview(id: number, data: ReviewUpdateInput): Promise<Review> {
     return await this.prisma.review.update({
-      where: { id },
+      where: { id, isDeleted: false },
       // TODO: How to sanitize input? Developers can enter more fields than they should
       data: {
         content: data.content,
@@ -46,62 +70,76 @@ export class ReviewRepository {
   }
 
   async getReviewById(id: number): Promise<Review | null> {
-    return await this.prisma.review.findUnique({ where: { id } });
+    return await this.prisma.review.findUnique({ where: { id, isDeleted: false } });
   }
 
-  async getReviewWithLikesById(id: number): Promise<ReviewWithLikes | null> {
-    return await this.prisma.review.findUnique({
-      where: { id },
-      include: { _count: { select: { likedUsers: true } } },
-    });
+  async getReviewWithLikesById(id: number, userId?: number): Promise<ReviewWithLikes | null> {
+    return toReviewWithLikes(
+      await this.prisma.review.findUnique({
+        where: { id, isDeleted: false },
+        select: reviewWithLikeSelect(userId),
+      }),
+    );
   }
 
-  async getReviewsWithLikesByLectureId(lectureId: number): Promise<ReviewWithLikes[]> {
-    return await this.prisma.review.findMany({
-      where: { lectureId, isDeleted: false },
-      include: { _count: { select: { likedUsers: true } } },
-    });
+  async getReviewsWithLikesByLectureId(lectureId: number, userId?: number): Promise<ReviewWithLikes[]> {
+    return (
+      await this.prisma.review.findMany({
+        where: { lectureId, isDeleted: false },
+        select: reviewWithLikeSelect(userId),
+      })
+    ).map(toReviewWithLikes);
   }
 
-  async getReviewsWithLikesByCourseId(courseId: number): Promise<ReviewWithLikes[]> {
-    return await this.prisma.review.findMany({
-      where: { lecture: { courseId }, isDeleted: false },
-      include: { _count: { select: { likedUsers: true } } },
-    });
+  async getReviewsWithLikesByCourseId(courseId: number, userId?: number): Promise<ReviewWithLikes[]> {
+    return (
+      await this.prisma.review.findMany({
+        where: { lecture: { courseId }, isDeleted: false },
+        select: reviewWithLikeSelect(userId),
+      })
+    ).map(toReviewWithLikes);
   }
 
   async getReviewsWithLikesByUserId(userId: number): Promise<ReviewWithLikes[]> {
-    return await this.prisma.review.findMany({
-      where: { userId, isDeleted: false },
-      include: { _count: { select: { likedUsers: true } } },
-    });
+    return (
+      await this.prisma.review.findMany({
+        where: { userId, isDeleted: false },
+        select: reviewWithLikeSelect(userId),
+      })
+    ).map(toReviewWithLikes); // TODO: User can't like their own review so we can just map liked to false, but it's business logic
   }
 
   // TODO: Better name
   async getReviewsWithLikesLikedByUser(userId: number): Promise<ReviewWithLikes[]> {
-    return await this.prisma.review.findMany({
-      where: { likedUsers: { some: { id: userId } }, isDeleted: false },
-      include: { _count: { select: { likedUsers: true } } },
-    });
+    return (
+      await this.prisma.review.findMany({
+        where: { likedUsers: { some: { id: userId } }, isDeleted: false },
+        include: { _count: { select: { likedUsers: true } } },
+      })
+    ).map((d) => ({ ...d, liked: true }));
   }
 
   async likeReview(reviewId: number, userId: number): Promise<ReviewWithLikes> {
-    return await this.prisma.review.update({
-      where: { id: reviewId },
-      data: { likedUsers: { connect: { id: userId } } },
-      include: { _count: { select: { likedUsers: true } } },
-    });
+    return toReviewWithLikes(
+      await this.prisma.review.update({
+        where: { id: reviewId, isDeleted: false },
+        data: { likedUsers: { connect: { id: userId } } },
+        select: reviewWithLikeSelect(userId),
+      }),
+    );
   }
 
   async unlikeReview(reviewId: number, userId: number): Promise<ReviewWithLikes> {
-    return await this.prisma.review.update({
-      where: { id: reviewId },
-      data: { likedUsers: { disconnect: { id: userId } } },
-      include: { _count: { select: { likedUsers: true } } },
-    });
+    return toReviewWithLikes(
+      await this.prisma.review.update({
+        where: { id: reviewId, isDeleted: false },
+        data: { likedUsers: { disconnect: { id: userId } } },
+        select: reviewWithLikeSelect(userId),
+      }),
+    );
   }
 
   async deleteReview(id: number): Promise<Review> {
-    return await this.prisma.review.update({ where: { id }, data: { isDeleted: true } });
+    return await this.prisma.review.update({ where: { id, isDeleted: false }, data: { isDeleted: true } });
   }
 }

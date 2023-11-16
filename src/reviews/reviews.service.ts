@@ -87,16 +87,16 @@ export class ReviewsService {
     return review;
   }
 
-  async getReviewWithLikesById(id: number) {
-    return this.reviewRepository.getReviewWithLikesById(id);
+  async getReviewWithLikesById(id: number, userid: number|undefined) {
+    return this.reviewRepository.getReviewWithLikesById(id, userid);
   }
 
-  async getReviewsByLectureId(lectureId: number) {
-    return this.reviewRepository.getReviewsWithLikesByLectureId(lectureId);
+  async getReviewsWithLikesByLectureId(lectureId: number, userId: number | undefined) {
+    return this.reviewRepository.getReviewsWithLikesByLectureId(lectureId, userId);
   }
 
-  async getReviewsByCourseId(courseId: number) {
-    return this.reviewRepository.getReviewsWithLikesByCourseId(courseId);
+  async getReviewsWithLikesByCourseId(courseId: number, userId: number | undefined) {
+    return this.reviewRepository.getReviewsWithLikesByCourseId(courseId, userId);
   }
 
   async likeReview(reviewId: number, userId: number) {

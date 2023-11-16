@@ -67,12 +67,13 @@ export const toReviewDTO =
     mine: review.userId === currentUserId,
   });
 
-export type ReviewWithLikesDTO = ReviewDTO & { likes: number };
+export type ReviewWithLikesDTO = ReviewDTO & { likes: number, myLike: boolean };
 
 export const toReviewWithLikesDTO = (currentUserId?: number) => {
   const toReview = toReviewDTO(currentUserId);
   return (review: ReviewWithLikes): ReviewWithLikesDTO => ({
     ...toReview(review),
     likes: review._count.likedUsers,
+    myLike: review.liked,
   });
 };

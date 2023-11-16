@@ -43,7 +43,7 @@ export type ReviewUpdateInput = {
   speech: number;
 };
 
-export type ReviewWithLikes = Review & { _count: { likedUsers: number } };
+export type ReviewWithLikes = Review & { _count: { likedUsers: number }; liked: boolean };
 
 export type ReportCreateInput = {
   userId: number;

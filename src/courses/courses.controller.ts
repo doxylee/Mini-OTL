@@ -55,14 +55,14 @@ export class CoursesController {
   @Public()
   @Get(':id/reviews')
   async getReviewsOnCourse(@Param('id') id: number, @JWTUser() user?: JWTPayload) {
-    return (await this.reviewsService.getReviewsByCourseId(id)).map(toReviewWithLikesDTO(user?.id));
+    return (await this.reviewsService.getReviewsWithLikesByCourseId(id, user?.id)).map(toReviewWithLikesDTO(user?.id));
   }
 
   @UseGuards(JwtAuthGuard)
   @Public()
   @Get('lectures/:lectureId/reviews')
   async getReviewsOnLecture(@Param('lectureId') lectureId: number, @JWTUser() user?: JWTPayload) {
-    return (await this.reviewsService.getReviewsByLectureId(lectureId)).map(toReviewWithLikesDTO(user?.id));
+    return (await this.reviewsService.getReviewsWithLikesByLectureId(lectureId, user?.id)).map(toReviewWithLikesDTO(user?.id));
   }
 
   @UseGuards(JwtAuthGuard)
@@ -95,7 +95,7 @@ export class CoursesController {
   @Public()
   @Get('lectures/reviews/:reviewId')
   async reviewDetail(@Param('reviewId') reviewId: number, @JWTUser() user?: JWTPayload) {
-    const review = await this.reviewsService.getReviewWithLikesById(reviewId);
+    const review = await this.reviewsService.getReviewWithLikesById(reviewId, user?.id);
     if (!review || review.isDeleted) throw new NotFoundException('Review not found');
     return toReviewWithLikesDTO(user?.id)(review);
   }
