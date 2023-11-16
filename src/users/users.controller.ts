@@ -18,8 +18,6 @@ export class UsersController {
   @Get('profile')
   async getProfile(@JWTUser() jwt: JWTPayload): Promise<UserProfileDTO> {
     const user = await this.usersService.getUserWithDeptById(jwt.id);
-    if (!user) throw new NotFoundException('User not found');
-    // TODO: Add more data to response
     return toUserProfileDTO(user);
   }
 

@@ -15,17 +15,15 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
-    const user = await this.usersService.getByEmail(email);
-
-    if (user && (await bcrypt.compare(password, user.encryptedPassword))) {
-      return user;
-    }
+    try {
+      const user = await this.usersService.getByEmail(email);
+      if (await bcrypt.compare(password, user.encryptedPassword)) return user;
+    } catch (e) {}
     return null;
   }
 
   async validateRefreshAndGenerateAccessToken(userId: number, refreshToken: string): Promise<TokenRefreshPayload> {
     const user = await this.usersService.getUserById(userId);
-    if (!user) throw new NotFoundException('User not found');
     if (user.refreshToken !== refreshToken) throw new RefreshTokenInvalidException();
 
     const payload: JWTPayload = { id: user.id, isAdmin: user.isAdmin };

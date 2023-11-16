@@ -35,4 +35,8 @@ export class UserRepository {
   async getByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { email } });
   }
+
+  async setAdmin(id: number, isAdmin: boolean): Promise<User> {
+    return this.prisma.user.update({ where: { id }, data: { isAdmin } });
+  }
 }

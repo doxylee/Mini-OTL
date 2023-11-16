@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDTO } from 'src/common/dto/users/users.dto';
 import { UserRepository } from 'src/prisma/repositories/user.repository';
 import * as bcrypt from 'bcrypt';
@@ -33,15 +33,25 @@ export class UsersService {
   }
 
   async getUserById(id: number) {
-    return this.userRepository.getById(id);
+    const user = await this.userRepository.getById(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
   async getUserWithDeptById(id: number) {
-    return this.userRepository.getUserWithDeptById(id);
+    const user = await this.userRepository.getUserWithDeptById(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
   async getByEmail(email: string) {
-    return this.userRepository.getByEmail(email);
+    const user = await this.userRepository.getByEmail(email);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
-  
+
+  async toggleAdmin(id: number) {
+    const user = await this.getUserById(id);
+    return this.userRepository.setAdmin(id, !user.isAdmin);
+  }
 }
