@@ -55,8 +55,9 @@ export class ReviewsService {
     const { id, userId, lectureId, ...rest } = data;
     const review = await this.getReviewWithId(id);
     if (review.userId !== userId) throw new ForbiddenException('Review can only be updated by its author');
+    if (review.lectureId !== lectureId) throw new NotFoundException('Review not found');
 
-    const lecture = await this.lecturesService.getLectureWithClasstimesById(data.lectureId);
+    const lecture = await this.lecturesService.getLectureWithClasstimesById(review.lectureId);
 
     const newReview = await this.reviewRepository.updateReview(id, rest);
     try {
