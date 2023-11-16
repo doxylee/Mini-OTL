@@ -31,6 +31,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AdminGuard } from 'src/auth/guard/admin.guard';
 import { JWTUser } from 'src/common/decorators/jwtuser.decorator';
 import { Public } from 'src/auth/decorator/skip-auth.decorator';
+import { toUserLastSeenReviewOnCourseDTO } from 'src/common/dto/courses/userLastSeenReviewOnCourse.dto';
 
 @Controller('api/courses')
 export class CoursesController {
@@ -62,7 +63,9 @@ export class CoursesController {
   @Public()
   @Get('lectures/:lectureId/reviews')
   async getReviewsOnLecture(@Param('lectureId') lectureId: number, @JWTUser() user?: JWTPayload) {
-    return (await this.reviewsService.getReviewsWithLikesByLectureId(lectureId, user?.id)).map(toReviewWithLikesDTO(user?.id));
+    return (await this.reviewsService.getReviewsWithLikesByLectureId(lectureId, user?.id)).map(
+      toReviewWithLikesDTO(user?.id),
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -109,5 +112,13 @@ export class CoursesController {
     @Param('reviewId') reviewId: number,
   ) {
     await this.reviewsService.deleteReviewByAdmin(reviewId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/reviews/seen')
+  async sawReviewOnCourse(@Param('id') id: number, @JWTUser() user: JWTPayload) {
+    const result = await this.coursesService.userSawReviewOnCourse(id, user.id);
+    if (!result) return toUserLastSeenReviewOnCourseDTO({ userId: user.id, courseId: id, lastSeenReviewId: null });
+    await toUserLastSeenReviewOnCourseDTO(result);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CourseStatUpdateInput, CourseWithDept, CourseWithIncludes } from './repository.dto';
+import { Course } from '@prisma/client';
 
 export type CourseFindFilter = {
   departments?: number[];
@@ -25,6 +26,10 @@ export class CourseRepository {
         },
       },
     });
+  }
+
+  async getCoursebyId(id: number): Promise<Course | null> {
+    return await this.prisma.course.findUnique({ where: { id } });
   }
 
   async findFiltered(filter: CourseFindFilter): Promise<CourseWithDept[]> {
@@ -55,6 +60,21 @@ export class CourseRepository {
         sumSpeech: { increment: data.speechChange },
         reviewCount: { increment: data.reviewCountChange },
       },
+    });
+  }
+
+  async updateLastReviewId(courseId: number) {
+    const lastReviewId =
+      (
+        await this.prisma.review.findFirst({
+          where: { lecture: { courseId }, isDeleted: false },
+          orderBy: { id: 'desc' },
+          select: { id: true },
+        })
+      )?.id ?? null;
+    return await this.prisma.course.update({
+      where: { id: courseId },
+      data: { lastReviewId: lastReviewId },
     });
   }
 }

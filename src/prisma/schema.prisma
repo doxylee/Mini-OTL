@@ -11,19 +11,20 @@ datasource db {
 }
 
 model User {
-  id                 Int         @id @default(autoincrement())
-  email              String      @unique
+  id                Int                          @id @default(autoincrement())
+  email             String                       @unique
   encryptedPassword String
-  firstName          String
-  lastName           String
-  department         Department  @relation(fields: [departmentId], references: [id])
-  departmentId       Int
-  isAdmin            Boolean     @default(false)
-  refreshToken       String?
-  reviews            Review[]
-  writtenReports     Report[]
-  timetables         Timetable[]
-  likedReviews       Review[]    @relation("LikedReviews")
+  firstName         String
+  lastName          String
+  department        Department                   @relation(fields: [departmentId], references: [id])
+  departmentId      Int
+  isAdmin           Boolean                      @default(false)
+  refreshToken      String?
+  reviews           Review[]
+  writtenReports    Report[]
+  timetables        Timetable[]
+  likedReviews      Review[]                     @relation("LikedReviews")
+  lastSeenReviews   UserLastSeenReviewOnCourse[]
 }
 
 model Department {
@@ -37,27 +38,29 @@ model Department {
 }
 
 model Professor {
-  id         Int          @id @default(autoincrement())
-  name       String
+  id          Int          @id @default(autoincrement())
+  name        String
   departments Department[]
-  lectures   Lecture[]
+  lectures    Lecture[]
 }
 
 model Course {
-  id            Int        @id @default(autoincrement())
-  nameKo        String
-  nameEn        String
-  courseNumCode Int
-  lectureTime   Int
-  labTime       Int
-  credit        Int
-  department    Department @relation(fields: [departmentId], references: [id])
-  departmentId  Int
-  sumGrade      Int        @default(0)
-  sumLoad       Int        @default(0)
-  sumSpeech     Int        @default(0)
-  reviewCount   Int        @default(0)
-  lectures      Lecture[]
+  id                         Int                          @id @default(autoincrement())
+  nameKo                     String
+  nameEn                     String
+  courseNumCode              Int
+  lectureTime                Int
+  labTime                    Int
+  credit                     Int
+  department                 Department                   @relation(fields: [departmentId], references: [id])
+  departmentId               Int
+  sumGrade                   Int                          @default(0)
+  sumLoad                    Int                          @default(0)
+  sumSpeech                  Int                          @default(0)
+  reviewCount                Int                          @default(0)
+  lectures                   Lecture[]
+  lastReviewId               Int?
+  UserLastSeenReviewOnCourse UserLastSeenReviewOnCourse[]
 
   @@unique([departmentId, courseNumCode])
 }
@@ -130,4 +133,14 @@ model Timetable {
   year     Int
   season   Int
   lectures Lecture[]
+}
+
+model UserLastSeenReviewOnCourse {
+  user             User   @relation(fields: [userId], references: [id])
+  userId           Int
+  course           Course @relation(fields: [courseId], references: [id])
+  courseId         Int
+  lastSeenReviewId Int
+
+  @@id([userId, courseId])
 }

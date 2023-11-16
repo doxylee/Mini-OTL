@@ -76,3 +76,9 @@ export type TimetableCreateInput = {
 export type TimetableWithFullLectures = Timetable & { lectures: LectureWithCourseProfessorClasstime[] };
 
 export type TimetableWithLectureTimes = Timetable & { lectures: LecturewithClassTimes[] };
+
+export type LastSawReviewOnCourse = {
+  userId: number;
+  courseId: number;
+  lastSeenReviewId: number;
+};

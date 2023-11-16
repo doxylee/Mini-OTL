@@ -6,6 +6,7 @@ import { ReviewRepository } from './repositories/review.repository';
 import { ReportRepository } from './repositories/report.repository';
 import { LectureRepository } from './repositories/lecture.repository';
 import { TimetableRepository } from './repositories/timetable.repository';
+import { UserLastSeenReviewOnCourseRepository } from './repositories/userLastSeenReviewOnCourse.repository';
 
 @Module({
   providers: [
@@ -16,6 +17,7 @@ import { TimetableRepository } from './repositories/timetable.repository';
     ReviewRepository,
     ReportRepository,
     TimetableRepository,
+    UserLastSeenReviewOnCourseRepository,
   ],
   exports: [
     PrismaService,
@@ -25,6 +27,7 @@ import { TimetableRepository } from './repositories/timetable.repository';
     ReviewRepository,
     ReportRepository,
     TimetableRepository,
+    UserLastSeenReviewOnCourseRepository,
   ],
 })
 export class PrismaModule {}
