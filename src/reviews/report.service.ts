@@ -14,7 +14,7 @@ export class ReportsService {
   async createReport(data: ReportCreateDTO) {
     // TODO: Throw service exceptions instead of HTTP exceptions (for all services)
     const review = await this.reviewsService.getReviewWithId(data.reviewId);
-    if (!review) throw new NotFoundException('Review not found');
+    if (review.userId === data.userId) throw new NotFoundException('User cannot report their own review');
 
     return await this.reportRepository.create(data);
   }

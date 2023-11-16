@@ -102,7 +102,9 @@ export class ReviewsService {
   async likeReview(reviewId: number, userId: number) {
     // Throws error if review doesn't exist
     // TODO: Throw service exceptions instead of HTTP exceptions (for all services)
-    await this.getReviewWithId(reviewId);
+    const review = await this.getReviewWithId(reviewId);
+    if (review.userId === userId) throw new ForbiddenException('User cannot like own review');
+
     return await this.reviewRepository.likeReview(reviewId, userId);
   }
 
