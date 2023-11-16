@@ -9,7 +9,7 @@ services:
       - '${MINI_OTL_DB_PORT:-43306}:3306'
     environment:
       - MYSQL_ROOT_HOSTS=%
-      - MYSQL_ROOT_PASSWORD=${MINI_OTL_DB_PASSWORD:-password}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MYSQL_DATABASE=miniotl
       - TZ=Asia/Seoul
     volumes:

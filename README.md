@@ -21,21 +21,21 @@ Create and start a mysql container. Set a password for root user.
 
 ```bash
 $ export MYSQL_ROOT_PASSWORD={DB root password} # for mac or linux
-$ set MYSQL_ROOT_PASSWORD={DB root password} # for windows
-$ docker compose up
+$ set MYSQL_ROOT_PASSWORD={DB root password} # for windows CMD
+$ $env:MYSQL_ROOT_PASSWORD='{DB root password}' # for windows PowerShell
+$ make db
 ```
 
 Connect to the running mysql container and run the following command.
 
 ```bash
-$ mysql -u root -p
+$ docker exec -it mini-otl-server-db mysql -u root -p miniotl
 password: {DB root password}
 ```
 
 ```sql
-mysql> CREATE USER 'backend' IDENTIFIED BY 'password';
-mysql> GRANT ALL PRIVILEGES ON *.* TO 'backend';
-mysql> FLUSH PRIVILEGES;
+mysql> CREATE USER 'backend' IDENTIFIED BY 'password'; GRANT ALL PRIVILEGES ON *.* TO 'backend'; FLUSH PRIVILEGES;
+mysql> exit
 ```
 
 Create a .env file to be used for developemnt in the root directory and set the environment variables according to .env.template file. Here's an example.
@@ -52,6 +52,11 @@ Migrate DB
 
 ```bash
 $ npx prisma migrate deploy
+```
+
+Add seed rows to DB
+```bash
+$ npx prisma db seed
 ```
 
 ## Running the app
