@@ -101,6 +101,10 @@ make stop
 make kill
 ```
 
+Production should be run in production environment and have its own DB,
+but in case you are running in local computer and want to connect to a local running DB container(perhaps development DB), you can use the following form to connect.
+`mysql://{id}:{password}@host.docker.internal:{port 43306}/miniotl`
+
 ## DB related commands
 
 ### Update Prisma client to schema changes
