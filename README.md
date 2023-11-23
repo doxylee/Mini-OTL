@@ -133,3 +133,6 @@ $ npx prisma migrate reset
 $ docker exec -it mini-otl-server-db mysql -u root -p miniotl
 password: {DB root password}
 ```
+
+## ERD
+![ERD](./src/prisma/ERD.svg)
